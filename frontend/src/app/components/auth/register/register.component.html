@@ -1,0 +1,408 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+      
+      <!-- Encabezado -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-8">
+        <h1 class="text-3xl font-bold mb-2">Registro</h1>
+        <p class="text-blue-100 text-base">Únete a nuestra plataforma de subastas</p>
+      </div>
+      
+      <!-- Pestañas de navegación -->
+      <div class="flex border-b border-gray-200">
+        <button 
+          class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
+          [class]="activeTab === 'personal' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+          (click)="setActiveTab('personal')"
+        >
+          <i class="fa-solid fa-user mr-2"></i> Datos Personales
+        </button>
+        <button 
+          class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
+          [class]="activeTab === 'account' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+          [class.opacity-50]="!isPersonalInfoValid()"
+          [class.cursor-not-allowed]="!isPersonalInfoValid()"
+          (click)="setActiveTab('account')"
+          [disabled]="!isPersonalInfoValid()"
+        >
+          <i class="fa-solid fa-lock mr-2"></i> Cuenta
+        </button>
+      </div>
+      
+      <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="p-8">
+        <!-- Pestaña 1: Datos Personales -->
+        <div *ngIf="activeTab === 'personal'" class="space-y-6">
+          
+          <!-- Campo de nombre -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-user text-gray-400"></i>
+              </div>
+              <input 
+                type="text" 
+                name="nombre" 
+                [(ngModel)]="registerData.nombre" 
+                placeholder="Nombre completo" 
+                required 
+                #nombre="ngModel"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+            </div>
+            <div *ngIf="nombre.invalid && (nombre.dirty || nombre.touched)" class="text-red-500 text-sm">
+              <span *ngIf="nombre.errors?.['required']">El nombre es obligatorio</span>
+            </div>
+          </div>
+          
+          <!-- Tipo de documento -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-id-card text-gray-400"></i>
+              </div>
+              <select 
+                name="tipoDocumento" 
+                [(ngModel)]="registerData.tipoDocumento" 
+                required 
+                #tipoDocumento="ngModel"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none bg-white"
+              >
+                <option value="" disabled selected>Seleccione tipo de documento</option>
+                <option value="ti">Tarjeta de Identidad</option>
+                <option value="cc">Cédula de Ciudadanía</option>
+                <option value="ce">Cédula de Extranjería</option>
+              </select>
+            </div>
+            <div *ngIf="tipoDocumento.invalid && (tipoDocumento.dirty || tipoDocumento.touched)" class="text-red-500 text-sm">
+              <span *ngIf="tipoDocumento.errors?.['required']">El tipo de documento es obligatorio</span>
+            </div>
+          </div>
+          
+          <!-- Número de documento -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-hashtag text-gray-400"></i>
+              </div>
+              <input 
+                type="text" 
+                name="numeroDocumento" 
+                [(ngModel)]="registerData.numeroDocumento" 
+                placeholder="Número de documento" 
+                required 
+                pattern="^[0-9]{10}$"
+                maxlength="10"
+                #numeroDocumento="ngModel"
+                (keypress)="soloNumeros($event)"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+            </div>
+            <div *ngIf="numeroDocumento.invalid && (numeroDocumento.dirty || numeroDocumento.touched)" class="text-red-500 text-sm">
+              <span *ngIf="numeroDocumento.errors?.['required']">El número de documento es obligatorio</span>
+              <span *ngIf="numeroDocumento.errors?.['pattern']">Debe contener exactamente 10 números</span>
+            </div>
+          </div>
+          
+          <!-- Teléfono -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-phone text-gray-400"></i>
+              </div>
+              <input 
+                type="tel" 
+                name="telefono" 
+                [(ngModel)]="registerData.telefono" 
+                placeholder="Teléfono" 
+                required 
+                pattern="^[0-9]{10,}$"
+                #telefono="ngModel"
+                maxlength="15"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+            </div>
+            <div *ngIf="telefono.invalid && (telefono.dirty || telefono.touched)" class="text-red-500 text-sm">
+              <span *ngIf="telefono.errors?.['required']">El teléfono es obligatorio</span>
+              <span *ngIf="telefono.errors?.['pattern']">Debe contener al menos 10 números</span>
+            </div>
+          </div>
+          
+          <!-- Dirección -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-map-marker-alt text-gray-400"></i>
+              </div>
+              <input 
+                type="text" 
+                name="direccion" 
+                [(ngModel)]="registerData.direccion" 
+                placeholder="Dirección" 
+                required 
+                #direccion="ngModel"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+            </div>
+            <div *ngIf="direccion.invalid && (direccion.dirty || direccion.touched)" class="text-red-500 text-sm">
+              <span *ngIf="direccion.errors?.['required']">La dirección es obligatoria</span>
+            </div>
+          </div>
+          
+          <!-- Botón para ir a la siguiente pestaña -->
+          <button 
+            type="button" 
+            class="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            [disabled]="!isPersonalInfoValid()"
+            (click)="setActiveTab('account')"
+          >
+            Siguiente <i class="fa-solid fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+        
+        <!-- Pestaña 2: Datos de Cuenta -->
+        <div *ngIf="activeTab === 'account'" class="space-y-6">
+          
+          <!-- Correo electrónico -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-envelope text-gray-400"></i>
+              </div>
+              <input 
+                type="email" 
+                name="email" 
+                [(ngModel)]="registerData.email" 
+                placeholder="Correo electrónico" 
+                required 
+                email
+                #email="ngModel"
+                class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+            </div>
+            <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-red-500 text-sm">
+              <span *ngIf="email.errors?.['required']">El correo electrónico es obligatorio</span>
+              <span *ngIf="email.errors?.['email']">Ingrese un correo electrónico válido</span>
+            </div>
+          </div>
+          
+          <!-- Contraseña -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-lock text-gray-400"></i>
+              </div>
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                name="password" 
+                [(ngModel)]="registerData.password" 
+                placeholder="Contraseña" 
+                required 
+                minlength="6"
+                #password="ngModel"
+                class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" (click)="togglePasswordVisibility()">
+                <span class="text-gray-400 hover:text-gray-600 text-lg select-none">{{ showPassword ? '🙈' : '👁️' }}</span>
+              </div>
+            </div>
+            <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-red-500 text-sm">
+              <span *ngIf="password.errors?.['required']">La contraseña es obligatoria</span>
+              <span *ngIf="password.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres</span>
+            </div>
+          </div>
+          
+          <!-- Confirmar contraseña -->
+          <div class="space-y-2">
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-lock text-gray-400"></i>
+              </div>
+              <input 
+                [type]="showConfirmPassword ? 'text' : 'password'" 
+                name="confirmPassword" 
+                [(ngModel)]="confirmPassword" 
+                placeholder="Confirmar contraseña" 
+                required 
+                #confirmPasswordField="ngModel"
+                class="w-full pl-10 pr-12 py-3 border-2 rounded-xl focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+                [class]="registerData.password !== confirmPassword && confirmPasswordField.dirty ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'"
+              >
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" (click)="toggleConfirmPasswordVisibility()">
+                <span class="text-gray-400 hover:text-gray-600 text-lg select-none">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
+              </div>
+            </div>
+            <div *ngIf="confirmPasswordField.dirty && registerData.password !== confirmPassword" class="text-red-500 text-sm">
+              Las contraseñas no coinciden
+            </div>
+          </div>
+          
+          <!-- Toggle para vendedor -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">¿Quieres vender productos en nuestro sitio?</span>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">{{ wantToSell ? 'Sí' : 'No' }}</span>
+                <button
+                  type="button"
+                  (click)="toggleSeller()"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  [class]="wantToSell ? 'bg-blue-600' : 'bg-gray-300'"
+                >
+                  <span
+                    class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                    [class]="wantToSell ? 'translate-x-6' : 'translate-x-1'"
+                  ></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Campos de vendedor (condicionales) -->
+          <div *ngIf="wantToSell" class="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <h4 class="text-sm font-semibold text-blue-800">Información de Vendedor</h4>
+            
+            <!-- Tipo de actividad profesional -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700">Tipo de actividad profesional</label>
+              <div class="flex space-x-4">
+                <label class="flex items-center">
+                  <input 
+                    type="radio" 
+                    name="tipoActividad" 
+                    value="individual" 
+                    [(ngModel)]="sellerData.tipoActividad" 
+                    required
+                    #tipoActividad="ngModel"
+                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  >
+                  <span class="ml-2 text-sm text-gray-700">Individual</span>
+                </label>
+                <label class="flex items-center">
+                  <input 
+                    type="radio" 
+                    name="tipoActividad" 
+                    value="empresa" 
+                    [(ngModel)]="sellerData.tipoActividad" 
+                    required
+                    #tipoActividad="ngModel"
+                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  >
+                  <span class="ml-2 text-sm text-gray-700">Empresa</span>
+                </label>
+              </div>
+              <div *ngIf="tipoActividad.invalid && (tipoActividad.dirty || tipoActividad.touched)" class="text-red-500 text-sm">
+                <span *ngIf="tipoActividad.errors?.['required']">Debe seleccionar un tipo de actividad</span>
+              </div>
+            </div>
+
+            <!-- Campos de empresa (condicionales) -->
+            <div *ngIf="sellerData.tipoActividad === 'empresa'" class="space-y-4">
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-700">Nombre de la empresa</label>
+                <input 
+                  type="text" 
+                  name="nombreEmpresa" 
+                  [(ngModel)]="sellerData.nombreEmpresa" 
+                  placeholder="Nombre de la empresa" 
+                  required
+                  #nombreEmpresa="ngModel"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+                >
+                <div *ngIf="nombreEmpresa.invalid && (nombreEmpresa.dirty || nombreEmpresa.touched)" class="text-red-500 text-sm">
+                  <span *ngIf="nombreEmpresa.errors?.['required']">El nombre de la empresa es obligatorio</span>
+                </div>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-700">Descripción de la empresa</label>
+                <textarea 
+                  name="descripcionEmpresa" 
+                  [(ngModel)]="sellerData.descripcionEmpresa" 
+                  placeholder="Describe tu empresa" 
+                  rows="3"
+                  required
+                  #descripcionEmpresa="ngModel"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none resize-none"
+                ></textarea>
+                <div *ngIf="descripcionEmpresa.invalid && (descripcionEmpresa.dirty || descripcionEmpresa.touched)" class="text-red-500 text-sm">
+                  <span *ngIf="descripcionEmpresa.errors?.['required']">La descripción de la empresa es obligatoria</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- NIT -->
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-700">Número de identificación tributaria (NIT)</label>
+              <input 
+                type="text" 
+                name="nit" 
+                [(ngModel)]="sellerData.nit" 
+                placeholder="NIT" 
+                required
+                pattern="^[0-9-]+$"
+                #nit="ngModel"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+              >
+              <div *ngIf="nit.invalid && (nit.dirty || nit.touched)" class="text-red-500 text-sm">
+                <span *ngIf="nit.errors?.['required']">El NIT es obligatorio</span>
+                <span *ngIf="nit.errors?.['pattern']">El NIT solo puede contener números y guiones</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Términos y condiciones -->
+          <div class="space-y-2">
+            <div class="flex items-start space-x-3">
+              <input 
+                type="checkbox" 
+                name="acceptTerms" 
+                [(ngModel)]="acceptTerms" 
+                required 
+                #acceptTermsField="ngModel"
+                id="acceptTerms"
+                class="h-5 w-5 text-blue-600 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 mt-0.5"
+              >
+              <label for="acceptTerms" class="text-sm text-gray-600 leading-relaxed">
+                Acepto los <a href="#" class="text-blue-600 hover:text-blue-800 font-medium underline decoration-2 underline-offset-2">términos y condiciones</a> y la <a href="#" class="text-blue-600 hover:text-blue-800 font-medium underline decoration-2 underline-offset-2">política de privacidad</a>
+              </label>
+            </div>
+            <div *ngIf="acceptTermsField.invalid && (acceptTermsField.dirty || acceptTermsField.touched)" class="text-red-500 text-sm">
+              Debes aceptar los términos y condiciones
+            </div>
+          </div>
+          
+          <!-- Botones de navegación -->
+          <div class="flex space-x-4">
+            <button 
+              type="button" 
+              class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-all duration-200"
+              (click)="setActiveTab('personal')"
+            >
+              <i class="fa-solid fa-arrow-left mr-2"></i> Atrás
+            </button>
+            
+            <button 
+              type="submit" 
+              class="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              [disabled]="!isFormValid() || isLoading"
+            >
+              <span *ngIf="!isLoading">Registrarse</span>
+              <span *ngIf="isLoading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Mensaje de error general -->
+        <div *ngIf="errorMessage" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {{ errorMessage }}
+        </div>
+        
+        <!-- Enlace para login -->
+        <div class="text-center mt-6">
+          <p class="text-gray-500 text-sm">
+            ¿Ya tienes una cuenta? <a routerLink="/login" class="text-blue-600 hover:text-blue-800 font-medium">Iniciar sesión</a>
+          </p>
+        </div>
+      </form>
+    </div>
+</div>
+  
