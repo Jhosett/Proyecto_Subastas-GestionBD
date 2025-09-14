@@ -1,1 +1,103 @@
-<p>login works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+    
+    <!-- Encabezado -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-center py-8">
+      <h1 class="text-3xl font-bold mb-2">Iniciar Sesión</h1>
+      <p class="text-blue-100 text-base">Bienvenido de vuelta</p>
+    </div>
+    
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="p-8 space-y-6">
+      
+      <!-- Correo electrónico -->
+      <div class="space-y-2">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <input 
+            type="email" 
+            name="email" 
+            [(ngModel)]="loginData.email" 
+            placeholder="Correo electrónico" 
+            required 
+            email
+            #email="ngModel"
+            class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+          >
+        </div>
+        <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-red-500 text-sm">
+          <span *ngIf="email.errors?.['required']">El correo electrónico es obligatorio</span>
+          <span *ngIf="email.errors?.['email']">Ingrese un correo electrónico válido</span>
+        </div>
+      </div>
+      
+      <!-- Contraseña -->
+      <div class="space-y-2">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            name="password" 
+            [(ngModel)]="loginData.password" 
+            placeholder="Contraseña" 
+            required 
+            #password="ngModel"
+            class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
+          >
+          <div 
+          class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" 
+          (click)="togglePasswordVisibility()"
+        >
+          <i 
+            class="text-gray-400 hover:text-gray-600 text-lg fa-solid" 
+            [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'">
+          </i>
+        </div>
+        </div>
+        <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-red-500 text-sm">
+          <span *ngIf="password.errors?.['required']">La contraseña es obligatoria</span>
+        </div>
+      </div>
+      
+      <!-- Recordar sesión y olvidé contraseña -->
+      <div class="flex items-center justify-between">
+        <label class="flex items-center">
+          <input 
+            type="checkbox" 
+            name="rememberMe" 
+            [(ngModel)]="rememberMe" 
+            class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          >
+          <span class="ml-2 text-sm text-gray-600">Recordar sesión</span>
+        </label>
+        <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">¿Olvidaste tu contraseña?</a>
+      </div>
+      
+      <!-- Botón de login -->
+      <button 
+        type="submit" 
+        class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="!isFormValid() || isLoading"
+      >
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading" class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+      </button>
+      
+      <!-- Mensaje de error general -->
+      <div *ngIf="errorMessage" class="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Enlace para registro -->
+      <div class="text-center">
+        <p class="text-gray-500 text-sm">
+          ¿No tienes una cuenta? <a routerLink="/register" class="text-blue-600 hover:text-blue-800 font-medium">Regístrate aquí</a>
+        </p>
+      </div>
+      
+    </form>
+  </div>
+</div>

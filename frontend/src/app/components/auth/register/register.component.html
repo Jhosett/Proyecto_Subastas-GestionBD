@@ -201,7 +201,10 @@
                 class="w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 outline-none"
               >
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" (click)="togglePasswordVisibility()">
-                <span class="text-gray-400 hover:text-gray-600 text-lg select-none">{{ showPassword ? '🙈' : '👁️' }}</span>
+                <i 
+                class="text-gray-400 hover:text-gray-600 text-lg fa-solid" 
+                [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'">
+              </i>
               </div>
             </div>
             <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-red-500 text-sm">
@@ -227,7 +230,10 @@
                 [class]="registerData.password !== confirmPassword && confirmPasswordField.dirty ? 'border-red-500 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'"
               >
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" (click)="toggleConfirmPasswordVisibility()">
-                <span class="text-gray-400 hover:text-gray-600 text-lg select-none">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
+                <i 
+                  class="text-gray-400 hover:text-gray-600 text-lg select-none fa-solid" 
+                  [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'">
+                </i>
               </div>
             </div>
             <div *ngIf="confirmPasswordField.dirty && registerData.password !== confirmPassword" class="text-red-500 text-sm">
