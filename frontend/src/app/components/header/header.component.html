@@ -1,3 +1,4 @@
+<!-- Cabecera -->
 <header class="w-full shadow-md bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
@@ -66,6 +67,7 @@
           </div>
 
           <!-- Logged in -->
+          <!-- Pestaña de profile del usuario en header -->
           <div *ngIf="isLoggedIn" class="relative">
             <button 
               (click)="toggleUserMenu()" 
@@ -97,6 +99,7 @@
               </button>
             </div>
           </div>
+          <!-- Cierre profile del usuario en header -->
         </div>
       </div>
     </div>

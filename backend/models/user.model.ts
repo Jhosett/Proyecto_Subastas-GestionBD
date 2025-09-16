@@ -1,5 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+//Interfaz de mongoose que representa un documento de mongo
+//Define los atributos y valores del usuario
 export interface User extends Document {
   nombre: string;
   tipoDocumento: 'ti' | 'cc' | 'ce';
@@ -18,6 +20,7 @@ export interface User extends Document {
   fechaRegistro: Date;
 }
 
+//Esquema que define como en realidad se guardarán los datos en mongo
 const userSchema = new Schema<User>({
   nombre: {
     type: String,

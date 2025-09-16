@@ -7,6 +7,7 @@ import { LoginComponent } from './components/auth/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
+    //Ruta para la página principal y secundarias
     {
         path: '', component: MainLayoutComponent,
         children: [
@@ -14,6 +15,7 @@ export const routes: Routes = [
             { path: 'dashboard', component: DashboardComponent}
         ]
     },
+    //Ruta apartado de login y registro
     {
         path: '', component: AuthLayoutComponent, 
         children: [

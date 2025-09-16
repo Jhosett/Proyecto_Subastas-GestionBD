@@ -8,10 +8,11 @@ router.post('/register', async(req, res) => {
     try {
       console.log('Received data:', req.body);
       
-      // Hash password before saving
+      //Función que encripta las contraseñas
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
       
+      //Guarda al usuario con su contraseña encriptada
       const userData = {
         ...req.body,
         password: hashedPassword
