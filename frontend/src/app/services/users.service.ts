@@ -34,4 +34,8 @@ export class UsersService {
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, { email, password });
   }
+
+  updateProfile(userId: string, profileData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${userId}`, profileData);
+  }
 }

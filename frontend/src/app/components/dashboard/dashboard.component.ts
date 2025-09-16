@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 interface UserProfile {
   _id: string;
@@ -23,7 +25,7 @@ interface UserProfile {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -32,6 +34,9 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
   activeTab: string = 'personal';
+  showEditModal: boolean = false;
+  editForm: any = {};
+  isUpdating: boolean = false;
 
   constructor(private usersService: UsersService, private router: Router) {}
 
@@ -48,7 +53,7 @@ export class DashboardComponent implements OnInit {
     
     try {
       // Get user data from localStorage
-      const userData = localStorage.getItem('currentUser');
+      const userData = localStorage.getItem('userData');
       
       if (userData) {
         this.userProfile = JSON.parse(userData);
@@ -86,6 +91,59 @@ export class DashboardComponent implements OnInit {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
+    });
+  }
+
+  openEditModal() {
+    this.editForm = {
+      nombre: this.userProfile?.nombre || '',
+      telefono: this.userProfile?.telefono || '',
+      direccion: this.userProfile?.direccion || ''
+    };
+    this.showEditModal = true;
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    this.editForm = {};
+  }
+
+  updateProfile() {
+    this.isUpdating = true;
+    
+    this.usersService.updateProfile(this.userProfile?._id!, this.editForm).subscribe({
+      next: (response) => {
+        // Update local profile
+        if (this.userProfile) {
+          this.userProfile.nombre = this.editForm.nombre;
+          this.userProfile.telefono = this.editForm.telefono;
+          this.userProfile.direccion = this.editForm.direccion;
+        }
+        
+        // Update localStorage
+        localStorage.setItem('userData', JSON.stringify(this.userProfile));
+        
+        this.isUpdating = false;
+        this.closeEditModal();
+        
+        // Show success message
+        Swal.fire({
+          title: '¡Perfil actualizado!',
+          text: 'Los cambios se han guardado correctamente.',
+          icon: 'success',
+          confirmButtonColor: '#3b82f6'
+        });
+      },
+      error: (error) => {
+        console.error('Error updating profile:', error);
+        this.isUpdating = false;
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo actualizar el perfil. Inténtalo de nuevo.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444'
+        });
+      }
     });
   }
 

@@ -55,6 +55,30 @@ router.post('/login', async(req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
+
+router.put('/users/:id', async(req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, telefono, direccion } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { nombre, telefono, direccion },
+      { new: true }
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    
+    const { password, ...userResponse } = updatedUser.toObject();
+    res.json(userResponse);
+    
+  } catch (error) {
+    console.error('Update error:', error);
+    res.status(500).json({ error: 'Error al actualizar el perfil' });
+  }
+});
   
 
 export default router;
