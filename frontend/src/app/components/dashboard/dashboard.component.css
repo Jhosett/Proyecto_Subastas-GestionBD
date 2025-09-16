@@ -1,0 +1,21 @@
+/* Custom styles for dashboard component */
+.dashboard-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.profile-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.info-row {
+  transition: background-color 0.2s ease;
+}
+
+.info-row:hover {
+  background-color: #f8fafc;
+}

@@ -1,0 +1,171 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">Mi Dashboard</h1>
+        <p class="text-gray-600">Gestiona tu perfil y actividad en la plataforma</p>
+      </div>
+      <button 
+        (click)="logout()" 
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center space-x-2"
+      >
+        <i class="fa-solid fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex items-center space-x-6">
+        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-user text-3xl text-blue-600"></i>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold text-gray-900">{{ userProfile?.nombre || 'Usuario' }}</h2>
+          <p class="text-gray-600">{{ userProfile?.email }}</p>
+          <div class="flex items-center mt-2">
+            <span class="px-3 py-1 text-xs font-medium rounded-full" 
+                  [class]="userProfile?.esVendedor ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+              {{ userProfile?.esVendedor ? 'Vendedor' : 'Comprador' }}
+            </span>
+          </div>
+        </div>
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <i class="fa-solid fa-edit mr-2"></i>Editar Perfil
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="bg-white rounded-xl shadow-lg mb-8">
+      <div class="flex border-b border-gray-200">
+        <button 
+          class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
+          [class]="activeTab === 'personal' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+          (click)="setActiveTab('personal')"
+        >
+          <i class="fa-solid fa-user mr-2"></i> Información Personal
+        </button>
+        <button 
+          class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
+          [class]="activeTab === 'account' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+          (click)="setActiveTab('account')"
+        >
+          <i class="fa-solid fa-cog mr-2"></i> Información de Cuenta
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="p-8">
+        <!-- Personal Information Tab -->
+        <div *ngIf="activeTab === 'personal'" class="space-y-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fa-solid fa-user-circle mr-3 text-blue-600"></i>
+            Información Personal
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Nombre completo:</span>
+                <span class="font-medium">{{ userProfile?.nombre || 'No disponible' }}</span>
+              </div>
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Tipo de documento:</span>
+                <span class="font-medium">{{ getDocumentType(userProfile?.tipoDocumento || '') }}</span>
+              </div>
+              <div class="py-3">
+                <span class="block text-gray-600">Número de documento:</span>
+                <span class="font-medium">{{ userProfile?.numeroDocumento || 'No disponible' }}</span>
+              </div>
+            </div>
+            <div class="space-y-4 md:border-l md:border-gray-300 md:pl-8">
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Teléfono:</span>
+                <span class="font-medium">{{ userProfile?.telefono || 'No disponible' }}</span>
+              </div>
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Dirección:</span>
+                <span class="font-medium">{{ userProfile?.direccion || 'No disponible' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Information Tab -->
+        <div *ngIf="activeTab === 'account'" class="space-y-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+            <i class="fa-solid fa-cog mr-3 text-gray-600"></i>
+            Información de Cuenta
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Email:</span>
+                <span class="block font-medium">{{ userProfile?.email || 'No disponible' }}</span>
+              </div>
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Fecha de registro:</span>
+                <span class="block font-medium">{{ formatDate(userProfile?.fechaRegistro || '') }}</span>
+              </div>
+            </div>
+            <div class="space-y-4 md:border-l md:border-gray-300 md:pl-8">
+              <div class="py-3 border-b border-gray-100">
+                <span class="block text-gray-600">Estado de cuenta:</span>
+                <span class="block w-[45px] px-1 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Activa</span>
+              </div>
+              <div class="py-3">
+                <span class="block text-gray-600">Tipo de usuario:</span>
+                <span class="block font-medium">{{ userProfile?.esVendedor ? 'Vendedor' : 'Comprador' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seller Information (if applicable) -->
+    <div *ngIf="userProfile?.esVendedor" class="bg-white rounded-xl shadow-lg p-8">
+      <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+        <i class="fa-solid fa-store mr-3 text-green-600"></i>
+        Información de Vendedor
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="py-3 border-b border-gray-100">
+            <span class="block text-gray-600">Tipo de actividad:</span>
+            <span class="block font-medium capitalize">{{ userProfile?.datosVendedor?.tipoActividad || 'No disponible' }}</span>
+          </div>
+          <div *ngIf="userProfile?.datosVendedor?.tipoActividad === 'empresa'" class="py-3 border-b border-gray-100">
+            <span class="block text-gray-600">Nombre de empresa:</span>
+            <span class="block font-medium">{{ userProfile?.datosVendedor?.nombreEmpresa || 'No disponible' }}</span>
+          </div>
+        </div>
+        <div class="space-y-4 md:border-l md:border-gray-300 md:pl-8">
+          <div class="py-3 border-b border-gray-100">
+            <span class="block text-gray-600">NIT:</span>
+            <span class="block font-medium">{{ userProfile?.datosVendedor?.nit || 'No disponible' }}</span>
+          </div>
+          <div *ngIf="userProfile?.datosVendedor?.tipoActividad === 'empresa'" class="py-3">
+            <span class="block text-gray-600">Descripción:</span>
+            <span class="block font-medium">{{ userProfile?.datosVendedor?.descripcionEmpresa || 'No disponible' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+  </div>
+</div>

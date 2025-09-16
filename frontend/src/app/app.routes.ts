@@ -4,12 +4,14 @@ import { RegisterComponent } from './components/auth/register/register.component
 import { HomeComponent } from './components/home/home.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { LoginComponent } from './components/auth/login/login.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 export const routes: Routes = [
     {
         path: '', component: MainLayoutComponent,
         children: [
-            { path: '', component: HomeComponent }
+            { path: '', component: HomeComponent },
+            { path: 'dashboard', component: DashboardComponent}
         ]
     },
     {

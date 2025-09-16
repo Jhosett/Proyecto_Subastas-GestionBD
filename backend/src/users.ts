@@ -1,20 +1,59 @@
 import { Router } from "express";
 import { User } from '../models/user.model';
-//import {db} from "./db";
+import bcrypt from 'bcrypt';
 
 const router = Router();
 
 router.post('/register', async(req, res) => {
     try {
       console.log('Received data:', req.body);
-      const user = await User.create(req.body);
-      console.log('User created successfully:', user);
-      res.json(user)
+      
+      // Hash password before saving
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+      
+      const userData = {
+        ...req.body,
+        password: hashedPassword
+      };
+      
+      const user = await User.create(userData);
+      console.log('User created successfully:', user._id);
+      
+      // Return user without password
+      const { password, ...userResponse } = user.toObject();
+      res.status(201).json(userResponse);
     } catch (error) {
-      console.error('Detailed error:', error); // This will show the real error
+      console.error('Detailed error:', error);
       res.status(500).json({ error: 'Error al registrar el usuario' });
     }
   });
+
+router.post('/login', async(req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+    
+    // Return user data without password
+    const { password: _, ...userResponse } = user.toObject();
+    res.json({ user: userResponse, message: 'Login exitoso' });
+    
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
   
 
 export default router;

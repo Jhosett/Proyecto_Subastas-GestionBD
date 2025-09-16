@@ -52,14 +52,51 @@
             <i class="fa-solid fa-question-circle"></i>
             <span class="hidden lg:inline">Ayuda</span>
           </a>
-          <a routerLink="/register" class="px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Registrarse</span>
-          </a>
-          <a routerLink="/login" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
-            <i class="fa-solid fa-sign-in-alt"></i>
-            <span>Iniciar sesión</span>
-          </a>
+          
+          <!-- Not logged in -->
+          <div *ngIf="!isLoggedIn" class="flex items-center space-x-4">
+            <a routerLink="/register" class="px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Registrarse</span>
+            </a>
+            <a routerLink="/login" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
+              <i class="fa-solid fa-sign-in-alt"></i>
+              <span>Iniciar sesión</span>
+            </a>
+          </div>
+
+          <!-- Logged in -->
+          <div *ngIf="isLoggedIn" class="relative">
+            <button 
+              (click)="toggleUserMenu()" 
+              class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <i class="fa-solid fa-user-circle text-xl"></i>
+              <span class="font-medium">{{ username }}</span>
+              <i class="fa-solid fa-chevron-down text-sm"></i>
+            </button>
+            
+            <!-- Dropdown menu -->
+            <div *ngIf="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+              <a routerLink="/dashboard" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fa-solid fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+              </a>
+              <a href="#" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fa-solid fa-user"></i>
+                <span>Mi Perfil</span>
+              </a>
+              <a href="#" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fa-solid fa-gavel"></i>
+                <span>Mis Subastas</span>
+              </a>
+              <hr class="my-1">
+              <button (click)="logout()" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
