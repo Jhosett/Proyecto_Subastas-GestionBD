@@ -1,0 +1,42 @@
+/* Estilos específicos para el carrusel de subastas - Estilo V0 */
+
+/* Optimización de renderizado de imágenes */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+  
+  /* Mejoras de rendimiento para transiciones suaves */
+  img {
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Contenedor con aceleración por hardware */
+  .group {
+    contain: layout style paint;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Animación personalizada para el spinner */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Suavizar transiciones de los indicadores */
+  button:focus-visible {
+    outline: none;
+  }
+  
+  /* Mejoras de accesibilidad para lectores de pantalla */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }

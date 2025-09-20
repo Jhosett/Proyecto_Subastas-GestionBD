@@ -1,0 +1,189 @@
+<!-- Carrusel de Subastas - Estilo V0 -->
+<div class="flex justify-center w-full bg-linear-to-t from-sky-500 to-indigo-500 py-6">
+  <div
+    class="group relative w-[80%] max-w-4xl bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+    (mouseenter)="pauseAutoPlay()"
+    (mouseleave)="resumeAutoPlay()"
+  >
+    <!-- Contenedor principal de imágenes -->
+    <div class="relative aspect-[16/9] w-full overflow-hidden">
+      <!-- Imágenes -->
+      <div class="relative w-full h-full">
+        <img
+          *ngFor="let image of images; let i = index"
+          [src]="image"
+          [alt]="'Imagen ' + (i + 1) + ' del artículo en subasta'"
+          class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out"
+          [class.opacity-100]="i === currentIndex"
+          [class.opacity-0]="i !== currentIndex"
+          [class.scale-100]="i === currentIndex"
+          [class.scale-105]="i !== currentIndex"
+          loading="lazy"
+        />
+      </div>
+
+      <!-- Overlay sutil -->
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"
+      ></div>
+
+      <!-- Botones de navegación - Solo visibles en hover del grupo -->
+      <button
+        class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-30"
+        (click)="prevSlide()"
+        [disabled]="isTransitioning"
+        aria-label="Imagen anterior"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+
+      <button
+        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-30"
+        (click)="nextSlide()"
+        [disabled]="isTransitioning"
+        aria-label="Siguiente imagen"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
+
+      <!-- Badge de múltiples imágenes -->
+      <div
+        *ngIf="images.length > 1"
+        class="absolute top-3 right-3 z-10 flex items-center space-x-1 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full"
+      >
+        <svg
+          class="w-3 h-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+        <span>{{ currentIndex + 1 }}/{{ images.length }}</span>
+      </div>
+
+      <!-- Indicador de zoom/expandir -->
+      <button
+        class="absolute bottom-3 right-3 z-10 flex items-center justify-center w-8 h-8 bg-black/60 backdrop-blur-sm text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/60"
+        aria-label="Ver imagen en tamaño completo"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Footer con indicadores y controles -->
+    <div
+      *ngIf="images.length > 1"
+      class="flex items-center justify-between p-4 border-t border-gray-100 bg-gray-50/50 w-full"
+    >
+      <!-- Indicadores minimalistas -->
+      <div class="flex items-center space-x-1.5">
+        <button
+          *ngFor="let image of images; let i = index; trackBy: trackByIndex"
+          class="w-2 h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          [class.bg-gray-900]="i === currentIndex"
+          [class.bg-gray-300]="i !== currentIndex"
+          [class.w-6]="i === currentIndex"
+          (click)="goToSlide(i)"
+          [attr.aria-label]="'Ver imagen ' + (i + 1)"
+        ></button>
+      </div>
+
+      <!-- Controles de reproducción -->
+      <div class="flex items-center space-x-2">
+        <!-- Botón play/pause -->
+        <button
+          class="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          (click)="toggleAutoPlay()"
+          [attr.aria-label]="
+            isPaused ? 'Reproducir presentación' : 'Pausar presentación'
+          "
+        >
+          <svg
+            *ngIf="isPaused"
+            class="w-4 h-4"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <svg
+            *ngIf="!isPaused"
+            class="w-4 h-4"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <!-- Indicador sutil de tiempo -->
+        <div class="w-16 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-gray-400 rounded-full transition-all duration-100 ease-linear"
+            [style.width.%]="progressPercentage"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div
+      *ngIf="isTransitioning"
+      class="absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-20"
+    >
+      <div
+        class="w-6 h-6 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"
+      ></div>
+    </div>
+  </div>
+</div>
