@@ -1,35 +1,37 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import usersRouter from './src/users'; //modulo de rutas relacionado con el usuario
-import { connectDB } from './src/db'; //función que conecta hacia la base de datos de mongo
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import productRoutes from "./src/routes/products.router"; 
+import usersRouter from './src/users';
 
-dotenv.config(); //lee el archivo .env
+dotenv.config();
 
-const app = express(); //crea la aplicación de express
-app.use(cors());
-app.use(express.json());
-app.use('/api', usersRouter);
-
-// Add a test route to verify server is working
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Server is working!' });
-});
-
+const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Start server after database connection
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Database connected successfully`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
+// ✅ IMPORTANTE: Middlewares ANTES de las rutas
+app.use(cors());
+app.use(express.json());
 
-startServer();
+// Ruta de prueba
+app.get("/api/test", (_req, res) => {
+  res.json({ message: "Backend funcionando 🚀" });
+});
+
+
+app.use("/api", usersRouter); // /api/login, /api/register, /api/users/:id
+app.use("/api/products", productRoutes); // /api/products
+
+// Conexión a MongoDB
+mongoose
+  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/auction_store")
+  .then(() => {
+    console.log("✅ Conectado a MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("❌ Error conectando a MongoDB:", err);
+  });

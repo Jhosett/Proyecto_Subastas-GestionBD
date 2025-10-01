@@ -1,0 +1,52 @@
+
+
+GET http://localhost:8000/api/products
+
+
+
+
+GET http://localhost:8000/api/products/68dd5e7a08c0137cda7a46fa
+
+
+POST http://localhost:8000/api/products
+Content-Type: application/json
+
+{
+  "nombre": "Laptop gamer",
+  "descripcion": "Laptop con RTX 4060 y 16GB RAM",
+  "precioInicial": 2500000,
+  "imagenUrl": "https://example.com/laptop.jpg",
+  "categoria": "tecnología",
+  "estado": "activo",
+  "vendedorId": "123456789",
+  "fechaCierre": "2025-12-31T23:59:59.000Z"
+}
+
+GET http://localhost:8000/api/products
+
+GET http://localhost:8000/api/products
+Content-Type: application/json
+
+POST http://localhost:8000/api/products
+Content-Type: application/json
+
+{
+  "name": "Producto prueba",
+  "price": 25000,
+  "description": "Este es un producto de prueba"
+}
+
+
+
+PUT http://localhost:8000/api/products/68dca5d8467fee4c59546e68
+Content-Type: application/json
+
+{
+  "name": "Producto actualizado",
+  "price": 30000
+}
+
+
+Eliminar un producto
+
+DELETE http://localhost:8000/api/products/68dca5d8467fee4c59546e68

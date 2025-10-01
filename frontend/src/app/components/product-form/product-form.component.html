@@ -1,0 +1,59 @@
+<div class="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-lg">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar Producto</h2>
+
+  <form (ngSubmit)="saveProduct()" class="space-y-4">
+    <!-- Nombre -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Nombre</label>
+      <input type="text" [(ngModel)]="product.nombre" name="nombre" 
+             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             required />
+    </div>
+
+    <!-- Descripción -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Descripción</label>
+      <textarea [(ngModel)]="product.descripcion" name="descripcion" 
+                class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="3" required></textarea>
+    </div>
+
+    <!-- Precio Inicial -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Precio Inicial</label>
+      <input type="number" [(ngModel)]="product.precioInicial" name="precioInicial" 
+             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             required />
+    </div>
+
+    <!-- URL de Imagen -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">URL de Imagen</label>
+      <input type="text" [(ngModel)]="product.imagenUrl" name="imagenUrl" 
+             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             required />
+    </div>
+
+    <!-- Categoría -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Categoría</label>
+      <input type="text" [(ngModel)]="product.categoria" name="categoria" 
+             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             required />
+    </div>
+
+    <!-- Fecha de cierre -->
+    <div>
+      <label class="block text-gray-700 font-medium mb-1">Fecha de cierre</label>
+      <input type="date" [(ngModel)]="product.fechaCierre" name="fechaCierre" 
+             class="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+             required />
+    </div>
+
+    <!-- Botón de envío -->
+    <button type="submit" 
+            class="w-full bg-green-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-green-700 transition-colors">
+      Registrar
+    </button>
+  </form>
+</div>

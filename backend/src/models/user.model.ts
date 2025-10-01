@@ -20,7 +20,7 @@ export interface User extends Document {
   fechaRegistro: Date;
 }
 
-//Esquema que define como en realidad se guardarán los datos en mongo
+
 const userSchema = new Schema<User>({
   nombre: {
     type: String,

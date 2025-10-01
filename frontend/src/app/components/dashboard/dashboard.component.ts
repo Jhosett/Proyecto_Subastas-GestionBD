@@ -1,9 +1,12 @@
+// dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
+import { ProductService } from '../../services/product.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { Product } from '../../models/product.model';
 
 interface UserProfile {
   _id: string;
@@ -25,6 +28,7 @@ interface UserProfile {
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
@@ -34,32 +38,47 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
   activeTab: string = 'personal';
-  showEditModal: boolean = false;
-  editForm: any = {};
-  isUpdating: boolean = false;
 
-  constructor(private usersService: UsersService, private router: Router) {}
+  // 🔹 Productos del vendedor
+  products: Product[] = [];
+  newProduct: Partial<Product> = {
+    nombre: '',
+    descripcion: '',
+    precioInicial: 0,
+    precioActual: 0,
+    categoria: '',
+    vendedorId: ''
+  };
+  editingProduct: Product | null = null;
 
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
-  }
+  constructor(
+    private usersService: UsersService,
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.loadUserProfile();
   }
 
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    if (tab === 'productos' && this.userProfile?.esVendedor) {
+      this.loadProducts();
+    }
+  }
+
   loadUserProfile() {
     this.isLoading = true;
-    
     try {
-      // Get user data from localStorage
       const userData = localStorage.getItem('userData');
-      
       if (userData) {
         this.userProfile = JSON.parse(userData);
         this.isLoading = false;
+        if (this.userProfile?.esVendedor) {
+          this.loadProducts();
+        }
       } else {
-        // No user data found, redirect to login
         this.errorMessage = 'No se encontró información del usuario. Por favor, inicia sesión.';
         this.isLoading = false;
         setTimeout(() => {
@@ -73,80 +92,76 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  getDocumentType(type: string): string {
-    if (!type) return 'No especificado';
-    const types: { [key: string]: string } = {
-      'ti': 'Tarjeta de Identidad',
-      'cc': 'Cédula de Ciudadanía',
-      'ce': 'Cédula de Extranjería',
-      'pp': 'Pasaporte'
-    };
-    return types[type] || 'No especificado';
-  }
-
-  formatDate(dateString: string): string {
-    if (!dateString) return 'No disponible';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  openEditModal() {
-    this.editForm = {
-      nombre: this.userProfile?.nombre || '',
-      telefono: this.userProfile?.telefono || '',
-      direccion: this.userProfile?.direccion || ''
-    };
-    this.showEditModal = true;
-  }
-
-  closeEditModal() {
-    this.showEditModal = false;
-    this.editForm = {};
-  }
-
-  updateProfile() {
-    this.isUpdating = true;
-    
-    this.usersService.updateProfile(this.userProfile?._id!, this.editForm).subscribe({
-      next: (response) => {
-        // Update local profile
-        if (this.userProfile) {
-          this.userProfile.nombre = this.editForm.nombre;
-          this.userProfile.telefono = this.editForm.telefono;
-          this.userProfile.direccion = this.editForm.direccion;
-        }
-        
-        // Update localStorage
-        localStorage.setItem('userData', JSON.stringify(this.userProfile));
-        
-        this.isUpdating = false;
-        this.closeEditModal();
-        
-        // Show success message
-        Swal.fire({
-          title: '¡Perfil actualizado!',
-          text: 'Los cambios se han guardado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#3b82f6'
-        });
+  // 🔹 Cargar productos del vendedor
+  loadProducts() {
+    if (!this.userProfile) return;
+    this.productService.getProductsBySeller(this.userProfile._id).subscribe({
+      next: (data) => {
+        this.products = data;
       },
-      error: (error) => {
-        console.error('Error updating profile:', error);
-        this.isUpdating = false;
-        Swal.fire({
-          title: 'Error',
-          text: 'No se pudo actualizar el perfil. Inténtalo de nuevo.',
-          icon: 'error',
-          confirmButtonColor: '#ef4444'
-        });
+      error: (err) => {
+        console.error('Error cargando productos:', err);
       }
     });
   }
 
+  // 🔹 Crear nuevo producto
+  createProduct() {
+    if (!this.userProfile) return;
+
+    const productData: Product = {
+      ...this.newProduct,
+      vendedorId: this.userProfile._id,
+      precioActual: this.newProduct.precioInicial || 0
+    } as Product;
+
+    // ✅ Pasar sellerId como segundo argumento
+    this.productService.createProduct(productData, this.userProfile._id).subscribe({
+      next: (created) => {
+        Swal.fire('Producto registrado', 'Tu producto se ha registrado correctamente.', 'success');
+        this.products.push(created);
+        this.newProduct = { 
+          nombre: '', 
+          descripcion: '', 
+          precioInicial: 0, 
+          precioActual: 0, 
+          categoria: '', 
+          vendedorId: this.userProfile?._id || ''
+        };
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'No se pudo registrar el producto.', 'error');
+      }
+    });
+  }
+
+  // 🔹 Editar producto
+  editProduct(product: Product) {
+    this.editingProduct = { ...product };
+  }
+
+  updateProduct() {
+    if (!this.editingProduct) return;
+    this.productService.updateProduct(this.editingProduct._id!, this.editingProduct).subscribe({
+      next: (updated) => {
+        Swal.fire('Producto actualizado', 'El producto se ha modificado correctamente.', 'success');
+        const index = this.products.findIndex(p => p._id === updated._id);
+        if (index !== -1) this.products[index] = updated;
+        this.editingProduct = null;
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'No se pudo actualizar el producto.', 'error');
+      }
+    });
+  }
+
+  cancelEdit() {
+    this.editingProduct = null;
+  }
+
+  // 🔹 Logout
   logout() {
     localStorage.removeItem('userData');
     localStorage.removeItem('currentUser');

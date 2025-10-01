@@ -1,1 +1,27 @@
-<app-carrusel></app-carrusel>
+<!-- home.component.html -->
+<div class="max-w-7xl mx-auto p-6">
+
+  <!-- Banner / Bienvenida -->
+  <div class="mb-8 text-center">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2">Bienvenido a SubastaPro</h1>
+    <p class="text-gray-600 text-lg">Descubre los productos más interesantes y participa en las subastas</p>
+  </div>
+
+  <!-- Todos los productos -->
+  <h2 class="text-2xl font-semibold mb-4">Todos los Productos</h2>
+
+  <!-- Grid de productos -->
+  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <app-product-card
+      *ngFor="let product of products"
+      [product]="product"
+      (view)="goToDetail(product._id)"
+      (bidNow)="makeBid(product._id)">
+    </app-product-card>
+  </div>
+
+  <!-- Mensaje si no hay productos -->
+  <div *ngIf="products.length === 0" class="text-center text-gray-500 mt-10">
+    No hay productos disponibles por el momento.
+  </div>
+</div>
