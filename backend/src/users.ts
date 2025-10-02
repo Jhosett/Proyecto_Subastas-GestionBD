@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    // ✅ Asegúrate de que el modelo User incluya esVendedor
+    
     const { password: _, ...userResponse } = user.toObject();
     return res.json({ user: userResponse, message: 'Login exitoso' });
 

@@ -1,19 +1,19 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common'; // <- importa CommonModule para pipes
+import { CommonModule } from '@angular/common'; 
 import { Product } from '../../services/product.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-card',
-  standalone: true, // <- importante si quieres usar este componente de manera independiente
-  imports: [CommonModule], // <- necesario para currency, date, ngIf, ngFor, etc
+  standalone: true,
+  imports: [CommonModule], 
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
 export class ProductCardComponent implements OnInit, OnDestroy {
   @Input() product?: Product;
-  @Output() view = new EventEmitter<string>(); // emite id para ver detalle
-  @Output() bidNow = new EventEmitter<string>(); // emite id para pujar
+  @Output() view = new EventEmitter<string>();
+  @Output() bidNow = new EventEmitter<string>(); 
 
   timeLeft = '—';
   private sub?: Subscription;

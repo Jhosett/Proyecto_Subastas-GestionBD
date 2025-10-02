@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit {
   filteredProducts: Product[] = [];
   isLoading: boolean = true;
 
-  // Filtros
+ 
   searchTerm: string = '';
   selectedCategory: string = '';
   filterStatus: string = '';

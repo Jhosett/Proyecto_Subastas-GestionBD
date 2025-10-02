@@ -6,14 +6,14 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
 import { LoginComponent } from './components/auth/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 
-// Productos
+
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 
 export const routes: Routes = [
-  // 📌 Rutas principales (MainLayout)
+  
   {
     path: '',
     component: MainLayoutComponent,
@@ -21,7 +21,7 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'dashboard', component: DashboardComponent },
 
-      // Productos
+     
       { path: 'products', component: ProductListComponent },
       { path: 'products/card', component: ProductCardComponent }, 
       { path: 'products/:id', component: ProductDetailComponent },
@@ -30,7 +30,7 @@ export const routes: Routes = [
     ]
   },
 
-  // 📌 Rutas de login y registro (AuthLayout)
+
   {
     path: '',
     component: AuthLayoutComponent,
@@ -40,6 +40,6 @@ export const routes: Routes = [
     ]
   },
 
-  // Ruta comodín
+ 
   { path: '**', redirectTo: '' }
 ];

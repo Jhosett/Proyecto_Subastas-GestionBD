@@ -1,4 +1,4 @@
-// services/product.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -36,17 +36,17 @@ export class ProductService {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
   }
 
-  // 🔹 Eliminar producto
+  //  Eliminar producto
   deleteProduct(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // 🔹 Hacer puja
+  //  Hacer puja
   bid(id: string, amount: number): Observable<Product> {
     return this.http.post<Product>(`${this.apiUrl}/${id}/bid`, { amount });
   }
 
-  // 🔹 Obtener productos de un vendedor específico
+  //  Obtener productos de un vendedor específico
   getProductsBySeller(sellerId: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/seller/${sellerId}`);
   }

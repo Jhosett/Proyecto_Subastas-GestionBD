@@ -9,15 +9,15 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors()); // Permitir peticiones desde el frontend
+
+app.use(cors()); 
 app.use(express.json());
 
 connectDB();
 
 // Rutas
 app.use("/api/products", productRoutes);
-app.use("/api", userRoutes); // ✅ Agregar rutas de autenticación
+app.use("/api", userRoutes); 
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

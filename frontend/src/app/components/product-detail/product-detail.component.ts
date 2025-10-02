@@ -10,7 +10,7 @@ import { Product, ProductService } from '../../services/product.service';
   templateUrl: './product-detail.component.html'
 })
 export class ProductDetailComponent implements OnInit {
-  // ✅ Cambiar de opcional (?) a null explícito
+  
   @Input() product: Product | null = null;
 
   constructor(

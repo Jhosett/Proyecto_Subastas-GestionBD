@@ -25,7 +25,7 @@ export class ProductFormComponent {
   constructor(private productService: ProductService) {}
 
   saveProduct(): void {
-    // ✅ Convertir fechaCierre a formato ISO string
+   
     const productToSave: Product = {
       ...this.product,
       fechaCierre: new Date(this.product.fechaCierre!).toISOString()

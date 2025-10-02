@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-//Interfaz de mongoose que representa un documento de mongo
-//Define los atributos y valores del usuario
+
 export interface User extends Document {
   nombre: string;
   tipoDocumento: 'ti' | 'cc' | 'ce';

@@ -11,12 +11,12 @@ import { getProductsBySeller } from "../controllers/product.controller";
 const router = Router();
 
 // Rutas Productos
-router.get("/", getProducts);        // Listar todos
-router.get("/:id", getProductById);  // Obtener uno
-router.post("/", createProduct);     // Crear
-router.put("/:id", updateProduct);   // Actualizar
-router.delete("/:id", deleteProduct); // Eliminar
+router.get("/", getProducts);       
+router.get("/:id", getProductById); 
+router.post("/", createProduct);     
+router.put("/:id", updateProduct);  
+router.delete("/:id", deleteProduct); 
 
-router.get("/seller/:sellerId", getProductsBySeller); // NUEVA RUTA
+router.get("/seller/:sellerId", getProductsBySeller); 
 
 export default router;
