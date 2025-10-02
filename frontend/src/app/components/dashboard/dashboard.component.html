@@ -138,6 +138,15 @@
       <div class="p-8">
         <!-- Personal Information Tab -->
         <div *ngIf="activeTab === 'personal'" class="space-y-6 animate-fadeIn">
+          <div class="flex justify-end mb-4">
+            <button 
+              (click)="toggleEditPersonalInfo()"
+              class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-xl hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-lg flex items-center"
+            >
+              <i class="fa-solid fa-edit mr-2"></i>
+              Editar Información
+            </button>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
               <label class="text-sm font-semibold text-gray-500 mb-2 block">Nombre Completo</label>

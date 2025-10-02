@@ -324,4 +324,92 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  toggleEditPersonalInfo() {
+    if (!this.userProfile) return;
+
+    Swal.fire({
+      title: '<i class="fa-solid fa-user-edit text-blue-600"></i> Editar Información Personal',
+      html: `
+        <div class="p-4">
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-user text-blue-500 mr-2"></i>Nombre Completo</label>
+            <input id="nombre" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu nombre completo" value="${this.userProfile.nombre}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-envelope text-blue-500 mr-2"></i>Correo Electrónico</label>
+            <input id="email" type="email" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="correo@ejemplo.com" value="${this.userProfile.email}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-phone text-blue-500 mr-2"></i>Teléfono</label>
+            <input id="telefono" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ej: +57 300 123 4567" value="${this.userProfile.telefono}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-map-marker-alt text-blue-500 mr-2"></i>Dirección</label>
+            <input id="direccion" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu dirección completa" value="${this.userProfile.direccion}">
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-save mr-2"></i>Guardar Cambios',
+      cancelButtonText: '<i class="fa-solid fa-times mr-2"></i>Cancelar',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      buttonsStyling: false,
+      customClass: {
+        confirmButton: 'px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors mr-3',
+        cancelButton: 'px-6 py-3 bg-gray-500 text-white font-bold rounded-xl hover:bg-gray-600 transition-colors',
+        popup: 'rounded-2xl shadow-2xl',
+        title: 'text-2xl font-bold text-gray-800 mb-4'
+      },
+      width: '500px',
+      preConfirm: () => {
+        const nombre = (document.getElementById('nombre') as HTMLInputElement).value;
+        const email = (document.getElementById('email') as HTMLInputElement).value;
+        const telefono = (document.getElementById('telefono') as HTMLInputElement).value;
+        const direccion = (document.getElementById('direccion') as HTMLInputElement).value;
+        
+        if (!nombre || !email || !telefono || !direccion) {
+          Swal.showValidationMessage('<i class="fa-solid fa-exclamation-triangle text-red-500 mr-2"></i>Todos los campos son obligatorios');
+          return false;
+        }
+        
+        return { nombre, email, telefono, direccion };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && this.userProfile) {
+        this.savePersonalInfo(result.value);
+      }
+    });
+  }
+
+  savePersonalInfo(data: any) {
+    if (!this.userProfile) return;
+
+    Swal.fire({
+      title: 'Actualizando información...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    const updatedProfile = { ...this.userProfile, ...data };
+    
+    this.usersService.updateProfile(this.userProfile._id, updatedProfile).subscribe({
+      next: (updated) => {
+        this.userProfile = updated;
+        localStorage.setItem('userData', JSON.stringify(updated));
+        Swal.fire({
+          icon: 'success',
+          title: '¡Información actualizada!',
+          timer: 2000
+        });
+      },
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al actualizar'
+        });
+      }
+    });
+  }
 }
