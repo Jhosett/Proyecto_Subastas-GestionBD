@@ -1,189 +1,159 @@
-<!-- Carrusel de Subastas - Estilo V0 -->
-<div class="flex justify-center w-full bg-linear-to-t from-sky-500 to-indigo-500 py-6">
-  <div
-    class="group relative w-[80%] max-w-4xl bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
-    (mouseenter)="pauseAutoPlay()"
-    (mouseleave)="resumeAutoPlay()"
-  >
-    <!-- Contenedor principal de imágenes -->
-    <div class="relative aspect-[16/9] w-full overflow-hidden">
-      <!-- Imágenes -->
-      <div class="relative w-full h-full">
-        <img
-          *ngFor="let image of images; let i = index"
-          [src]="image"
-          [alt]="'Imagen ' + (i + 1) + ' del artículo en subasta'"
-          class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out"
-          [class.opacity-100]="i === currentIndex"
-          [class.opacity-0]="i !== currentIndex"
-          [class.scale-100]="i === currentIndex"
-          [class.scale-105]="i !== currentIndex"
-          loading="lazy"
-        />
-      </div>
-
-      <!-- Overlay sutil -->
-      <div
-        class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"
-      ></div>
-
-      <!-- Botones de navegación - Solo visibles en hover del grupo -->
-      <button
-        class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-30"
-        (click)="prevSlide()"
-        [disabled]="isTransitioning"
-        aria-label="Imagen anterior"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-
-      <button
-        class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full shadow-sm border border-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-30"
-        (click)="nextSlide()"
-        [disabled]="isTransitioning"
-        aria-label="Siguiente imagen"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
-
-      <!-- Badge de múltiples imágenes -->
-      <div
-        *ngIf="images.length > 1"
-        class="absolute top-3 right-3 z-10 flex items-center space-x-1 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full"
-      >
-        <svg
-          class="w-3 h-3"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
-        <span>{{ currentIndex + 1 }}/{{ images.length }}</span>
-      </div>
-
-      <!-- Indicador de zoom/expandir -->
-      <button
-        class="absolute bottom-3 right-3 z-10 flex items-center justify-center w-8 h-8 bg-black/60 backdrop-blur-sm text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/60"
-        aria-label="Ver imagen en tamaño completo"
-      >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-          />
-        </svg>
-      </button>
-    </div>
-
-    <!-- Footer con indicadores y controles -->
-    <div
-      *ngIf="images.length > 1"
-      class="flex items-center justify-between p-4 border-t border-gray-100 bg-gray-50/50 w-full"
-    >
-      <!-- Indicadores minimalistas -->
-      <div class="flex items-center space-x-1.5">
-        <button
-          *ngFor="let image of images; let i = index; trackBy: trackByIndex"
-          class="w-2 h-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-          [class.bg-gray-900]="i === currentIndex"
-          [class.bg-gray-300]="i !== currentIndex"
-          [class.w-6]="i === currentIndex"
-          (click)="goToSlide(i)"
-          [attr.aria-label]="'Ver imagen ' + (i + 1)"
-        ></button>
-      </div>
-
-      <!-- Controles de reproducción -->
-      <div class="flex items-center space-x-2">
-        <!-- Botón play/pause -->
-        <button
-          class="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-          (click)="toggleAutoPlay()"
-          [attr.aria-label]="
-            isPaused ? 'Reproducir presentación' : 'Pausar presentación'
-          "
-        >
-          <svg
-            *ngIf="isPaused"
-            class="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          <svg
-            *ngIf="!isPaused"
-            class="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        </button>
-
-        <!-- Indicador sutil de tiempo -->
-        <div class="w-16 h-1 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-gray-400 rounded-full transition-all duration-100 ease-linear"
-            [style.width.%]="progressPercentage"
-          ></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading state -->
-    <div
-      *ngIf="isTransitioning"
-      class="absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center z-20"
-    >
-      <div
-        class="w-6 h-6 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"
-      ></div>
+<div class="relative w-full max-w-5xl mx-auto group overflow-hidden rounded-2xl shadow-2xl">
+  
+  <!-- Progress Bar -->
+  <div class="absolute top-0 left-0 right-0 h-1 bg-gray-200/30 z-20">
+    <div 
+      class="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-100 ease-linear"
+      [style.width.%]="progressPercentage">
     </div>
   </div>
+
+  <!-- Slides Container -->
+  <div class="relative w-full aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/9]">
+    
+    <!-- Slides -->
+    <div *ngFor="let product of products; let i = index" 
+         class="absolute inset-0 transition-all duration-700 ease-in-out"
+         [class.opacity-100]="i === currentIndex"
+         [class.opacity-0]="i !== currentIndex"
+         [class.scale-100]="i === currentIndex"
+         [class.scale-105]="i !== currentIndex">
+      
+      <!-- Imagen con efecto zoom en hover -->
+      <div class="relative w-full h-full overflow-hidden group/image">
+        <img
+          [src]="product.image"
+          [alt]="product.name"
+          class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/image:scale-110"
+          loading="lazy"
+        />
+        
+        <!-- Gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+      </div>
+
+      <!-- Badge de Producto Destacado -->
+      <div *ngIf="product.isFeatured" 
+           class="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg flex items-center gap-2 z-10">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+        Destacado
+      </div>
+
+      <!-- Información del producto (Overlay inferior) -->
+      <div class="absolute bottom-0 left-0 right-0 p-6 z-10">
+        
+        <!-- Nombre del producto -->
+        <h3 class="text-white text-2xl md:text-3xl font-bold mb-3 drop-shadow-lg">
+          {{ product.name }}
+        </h3>
+
+        <!-- Info grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+          
+          <!-- Precio actual -->
+          <div class="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+            <p class="text-xs text-gray-600 font-medium mb-1">Precio Actual</p>
+            <p class="text-xl font-bold text-gray-900">
+              {{ formatPrice(product.currentPrice) }}
+            </p>
+            <p class="text-xs text-gray-500 mt-1">
+              Puja mínima: {{ formatPrice(product.minBid) }}
+            </p>
+          </div>
+
+          <!-- Tiempo restante y pujas -->
+          <div class="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="text-xs text-gray-600 font-medium mb-1">Tiempo Restante</p>
+                <p class="text-xl font-bold text-red-600 flex items-center gap-1">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                  </svg>
+                  {{ product.timeRemaining }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-gray-600 font-medium mb-1">Pujas</p>
+                <p class="text-xl font-bold text-blue-600">{{ product.totalBids }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de Pujar -->
+        <button 
+          (click)="onBidNow(product)"
+          class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          Pujar Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de navegación -->
+  <button
+    (click)="prevSlide()"
+    class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full shadow-xl border-2 border-gray-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-blue-600 hover:text-white hover:border-blue-600 focus:outline-none z-20">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/>
+    </svg>
+  </button>
+  
+  <button
+    (click)="nextSlide()"
+    class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/95 backdrop-blur-sm rounded-full shadow-xl border-2 border-gray-200 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-blue-600 hover:text-white hover:border-blue-600 focus:outline-none z-20">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+    </svg>
+  </button>
+
+  <!-- Indicadores con miniaturas -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+    <button
+      *ngFor="let product of products; let i = index"
+      (click)="goToSlide(i)"
+      class="relative group/thumb transition-all duration-300 focus:outline-none"
+      [class.scale-110]="i === currentIndex">
+      
+      <!-- Miniatura -->
+      <div class="relative w-16 h-10 sm:w-20 sm:h-12 rounded-lg overflow-hidden border-2 transition-all duration-300"
+           [class.border-white]="i === currentIndex"
+           [class.border-gray-400]="i !== currentIndex"
+           [class.shadow-xl]="i === currentIndex"
+           [class.shadow-md]="i !== currentIndex">
+        <img 
+          [src]="product.image" 
+          [alt]="product.name"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-black transition-opacity duration-300"
+             [class.opacity-0]="i === currentIndex"
+             [class.opacity-40]="i !== currentIndex">
+        </div>
+      </div>
+      
+      <!-- Indicador activo -->
+      <div *ngIf="i === currentIndex" 
+           class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg">
+      </div>
+    </button>
+  </div>
+
+  <!-- Control de autoplay -->
+  <button
+    (click)="toggleAutoPlay()"
+    class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-all duration-300 hover:scale-110 focus:outline-none z-20">
+    <svg *ngIf="isPaused" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+    </svg>
+    <svg *ngIf="!isPaused" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>
+  </button>
 </div>

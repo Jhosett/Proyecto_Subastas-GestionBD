@@ -1,28 +1,308 @@
 <!-- home.component.html -->
-<div class="max-w-7xl mx-auto p-6">
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+  
+  <!-- Hero Section con Carrusel Integrado -->
+  <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden">
+    <div class="absolute inset-0 bg-black/20"></div>
+    
+    <!-- Carrusel de Subastas Destacadas -->
+    <app-carrusel></app-carrusel>
+    
+    <!-- Overlay de Bienvenida -->
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-12 text-center text-white">
+      <h1 class="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg animate-fade-in">
+        🏆 Bienvenido a BidUp
+      </h1>
+      <p class="text-xl md:text-2xl mb-8 text-white/90 drop-shadow-md animate-slide-up">
+        Descubre, Puja y Gana los Mejores Productos
+      </p>
+      
+      <!-- Barra de Búsqueda Principal -->
+      <div class="max-w-3xl mx-auto mb-8 animate-slide-up-delayed">
+        <div class="relative">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            placeholder="Buscar productos, categorías..."
+            class="w-full px-6 py-4 pr-32 text-gray-800 rounded-full shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50 transition-all"
+          />
+          <button 
+            class="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full hover:shadow-lg transition-all transform hover:scale-105 font-semibold"
+          >
+            <i class="fa-solid fa-search mr-2"></i>
+            Buscar
+          </button>
+        </div>
+      </div>
 
-  <!-- Banner / Bienvenida -->
-  <div class="mb-8 text-center">
-    <h1 class="text-4xl font-bold text-gray-800 mb-2">Bienvenido a SubastaPro</h1>
-    <p class="text-gray-600 text-lg">Descubre los productos más interesantes y participa en las subastas</p>
+      <!-- Stats en vivo -->
+      <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto mt-8">
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+          <div class="text-3xl font-bold">{{ products.length }}</div>
+          <div class="text-sm text-white/80">Subastas Activas</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+          <div class="text-3xl font-bold">24h</div>
+          <div class="text-sm text-white/80">Tiempo Promedio</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+          <div class="text-3xl font-bold">100%</div>
+          <div class="text-sm text-white/80">Confiable</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Todos los productos -->
-  <h2 class="text-2xl font-semibold mb-4">Todos los Productos</h2>
-
-  <!-- Grid de productos -->
-  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    <app-product-card
-      *ngFor="let product of products"
-      [product]="product"
-      (view)="goToDetail(product._id)"
-      (bidNow)="makeBid(product._id)">
-    </app-product-card>
+  <!-- Categorías Rápidas -->
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+      <i class="fa-solid fa-layer-group mr-3 text-indigo-600"></i>
+      Explorar por Categoría
+    </h2>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+      <button 
+        *ngFor="let cat of categories"
+        (click)="filterByCategory(cat.name)"
+        [class.ring-2]="selectedCategory === cat.name"
+        [class.ring-indigo-600]="selectedCategory === cat.name"
+        class="group bg-white hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50 rounded-xl p-6 shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1 border border-gray-100"
+      >
+        <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">{{ cat.icon }}</div>
+        <div class="text-sm font-semibold text-gray-700 group-hover:text-indigo-600">{{ cat.name }}</div>
+      </button>
+    </div>
   </div>
 
-  <!-- Mensaje si no hay productos -->
-  <div *ngIf="products.length === 0" class="text-center text-gray-500 mt-10">
-    No hay productos disponibles por el momento.
+  <!-- Filtros y Ordenamiento -->
+  <div class="max-w-7xl mx-auto px-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md p-4 flex flex-wrap items-center gap-4">
+      <!-- Filtro por estado -->
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-filter text-gray-500"></i>
+        <select 
+          [(ngModel)]="filterStatus"
+          (change)="applyFilters()"
+          class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        >
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="finalizado">Finalizados</option>
+        </select>
+      </div>
+
+      <!-- Ordenar por -->
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-sort text-gray-500"></i>
+        <select 
+          [(ngModel)]="sortBy"
+          (change)="applySorting()"
+          class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        >
+          <option value="recent">Más recientes</option>
+          <option value="price-low">Precio: Menor a Mayor</option>
+          <option value="price-high">Precio: Mayor a Menor</option>
+          <option value="ending">Próximos a cerrar</option>
+        </select>
+      </div>
+
+      <!-- Limpiar filtros -->
+      <button 
+        *ngIf="selectedCategory || filterStatus || searchTerm"
+        (click)="clearFilters()"
+        class="ml-auto px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+      >
+        <i class="fa-solid fa-times-circle mr-1"></i>
+        Limpiar filtros
+      </button>
+
+      <!-- Contador de resultados -->
+      <div class="text-sm text-gray-600 font-medium">
+        {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'producto' : 'productos' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de Productos -->
+  <div class="max-w-7xl mx-auto px-6 pb-16">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 flex items-center">
+      <i class="fa-solid fa-fire text-orange-500 mr-3"></i>
+      Subastas en Vivo
+    </h2>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+      <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
+        <div class="h-48 bg-gray-200"></div>
+        <div class="p-4 space-y-3">
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <div 
+      *ngIf="!isLoading"
+      class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+    >
+      <div
+        *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+        class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
+      >
+        <!-- Imagen del producto -->
+        <div class="relative h-56 overflow-hidden bg-gray-100">
+          <img 
+            [src]="product.imagenUrl || '/assets/noimg.png'" 
+            [alt]="product.nombre"
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          
+          <!-- Badge de estado -->
+          <span 
+            class="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg"
+            [ngClass]="{
+              'bg-gradient-to-r from-green-500 to-emerald-500': product.estado === 'activo',
+              'bg-gradient-to-r from-red-500 to-rose-500': product.estado === 'finalizado'
+            }"
+          >
+            <i class="fa-solid fa-circle text-white text-[8px] mr-1 animate-pulse"></i>
+            {{ product.estado === 'activo' ? 'EN VIVO' : 'CERRADO' }}
+          </span>
+
+          <!-- Countdown timer (si está activo) -->
+          <div 
+            *ngIf="product.estado === 'activo' && product.fechaCierre"
+            class="absolute bottom-3 left-3 right-3 bg-black/70 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-xs font-semibold"
+          >
+            <i class="fa-solid fa-clock mr-1"></i>
+            Cierra en: {{ getTimeRemaining(product.fechaCierre) }}
+          </div>
+        </div>
+
+        <!-- Contenido -->
+        <div class="p-5">
+          <!-- Categoría -->
+          <div class="flex items-center text-xs text-indigo-600 font-semibold mb-2">
+            <i class="fa-solid fa-tag mr-1"></i>
+            {{ product.categoria }}
+          </div>
+
+          <!-- Título -->
+          <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+            {{ product.nombre }}
+          </h3>
+
+          <!-- Descripción -->
+          <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+            {{ product.descripcion }}
+          </p>
+
+          <!-- Precio -->
+          <div class="flex items-end justify-between mb-4">
+            <div>
+              <div class="text-xs text-gray-500 mb-1">Precio actual</div>
+              <div class="text-2xl font-bold text-green-600">
+                {{ product.precioActual || product.precioInicial | currency:'USD':'symbol':'1.0-0' }}
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-gray-500 mb-1">Inicial</div>
+              <div class="text-sm text-gray-600 line-through">
+                {{ product.precioInicial | currency:'USD':'symbol':'1.0-0' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="flex space-x-2">
+            <button 
+              (click)="goToDetail(product._id)"
+              class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all flex items-center justify-center"
+            >
+              <i class="fa-solid fa-eye mr-2"></i>
+              Ver
+            </button>
+            <button 
+              *ngIf="product.estado === 'activo'"
+              (click)="makeBid(product._id)"
+              class="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-md flex items-center justify-center"
+            >
+              <i class="fa-solid fa-gavel mr-2"></i>
+              Pujar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div 
+      *ngIf="!isLoading && filteredProducts.length === 0" 
+      class="text-center py-20"
+    >
+      <i class="fa-solid fa-box-open text-8xl text-gray-300 mb-6"></i>
+      <h3 class="text-2xl font-bold text-gray-600 mb-2">No hay productos disponibles</h3>
+      <p class="text-gray-500 mb-6">
+        {{ searchTerm || selectedCategory ? 'Intenta con otros filtros o búsquedas' : 'Vuelve más tarde para encontrar nuevas subastas' }}
+      </p>
+      <button 
+        *ngIf="searchTerm || selectedCategory"
+        (click)="clearFilters()"
+        class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+      >
+        Ver todos los productos
+      </button>
+    </div>
+  </div>
+
+  <!-- CTA Final -->
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 py-16">
+    <div class="max-w-4xl mx-auto text-center px-6">
+      <h2 class="text-4xl font-bold text-white mb-4">
+        ¿Tienes algo para subastar?
+      </h2>
+      <p class="text-xl text-white/90 mb-8">
+        Únete a nuestra comunidad y comienza a vender tus productos hoy mismo
+      </p>
+      <button 
+        routerLink="/register"
+        class="px-8 py-4 bg-white text-indigo-600 font-bold rounded-full hover:bg-gray-100 transform hover:scale-105 transition-all shadow-xl"
+      >
+        <i class="fa-solid fa-rocket mr-2"></i>
+        Regístrate como Vendedor
+      </button>
+    </div>
   </div>
 </div>
-<app-carrusel></app-carrusel>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out 0.2s both;
+}
+
+.animate-slide-up-delayed {
+  animation: slide-up 0.8s ease-out 0.4s both;
+}
+</style>
