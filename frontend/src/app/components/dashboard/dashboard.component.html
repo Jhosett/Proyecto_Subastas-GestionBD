@@ -1,287 +1,491 @@
-<!-- Tabs Navigation -->
-<div class="bg-white rounded-xl shadow-lg mb-8">
-  <div class="flex border-b border-gray-200">
-    <button 
-      class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
-      [class]="activeTab === 'personal' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
-      (click)="setActiveTab('personal')"
-    >
-      <i class="fa-solid fa-user mr-2"></i> Información Personal
-    </button>
-    <button 
-      class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
-      [class]="activeTab === 'account' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
-      (click)="setActiveTab('account')"
-    >
-      <i class="fa-solid fa-cog mr-2"></i> Información de Cuenta
-    </button>
-    <button 
-      *ngIf="userProfile?.esVendedor"
-      class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
-      [class]="activeTab === 'productos' ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
-      (click)="setActiveTab('productos')"
-    >
-      <i class="fa-solid fa-box mr-2"></i> Mis Productos
-    </button>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto mb-4"></div>
+      <p class="text-gray-600 text-lg font-medium">Cargando perfil...</p>
+    </div>
   </div>
 
-  <!-- Tab Content -->
-  <div class="p-8">
-    <!-- Personal Information Tab -->
-    <div *ngIf="activeTab === 'personal'" class="space-y-6">
-      <!-- ... aquí tu contenido actual de info personal ... -->
-    </div>
-
-    <!-- Account Information Tab -->
-    <div *ngIf="activeTab === 'account'" class="space-y-6">
-      <!-- ... aquí tu contenido actual de info de cuenta ... -->
-    </div>
-
-    <!-- 🔹 Productos Tab (solo para vendedores) -->
-    <div *ngIf="activeTab === 'productos'" class="space-y-8">
-      <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-        <h3 class="text-2xl font-bold flex items-center">
-          <i class="fa-solid fa-gavel mr-3"></i>
-          Gestión de Subastas
-        </h3>
-        <p class="mt-2 text-green-50">Administra tus productos en subasta</p>
-      </div>
-
-      <!-- Formulario de nuevo producto -->
-      <div class="bg-white rounded-xl shadow-lg p-8">
-        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-          <i class="fa-solid fa-plus-circle mr-2 text-green-600"></i>
-          Registrar Nueva Subasta
-        </h4>
-        
-        <form (ngSubmit)="createProduct()" class="space-y-6">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fa-solid fa-tag mr-1 text-blue-500"></i>
-              Nombre del Producto *
-            </label>
-            <input 
-              type="text" 
-              [(ngModel)]="newProduct.nombre" 
-              name="nombre" 
-              required
-              placeholder="Ej: iPhone 15 Pro Max 256GB"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fa-solid fa-align-left mr-1 text-blue-500"></i>
-              Descripción *
-            </label>
-            <textarea 
-              [(ngModel)]="newProduct.descripcion" 
-              name="descripcion" 
-              rows="4"
-              required
-              placeholder="Describe el producto en detalle: estado, características, incluye..."
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-            ></textarea>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                <i class="fa-solid fa-dollar-sign mr-1 text-green-600"></i>
-                Precio Inicial *
-              </label>
-              <input 
-                type="number" 
-                [(ngModel)]="newProduct.precioInicial" 
-                name="precioInicial" 
-                required
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                <i class="fa-solid fa-layer-group mr-1 text-purple-600"></i>
-                Categoría *
-              </label>
-              <select 
-                [(ngModel)]="newProduct.categoria" 
-                name="categoria"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              >
-                <option value="">Selecciona una categoría</option>
-                <option value="Electrónica">Electrónica</option>
-                <option value="Hogar">Hogar y Jardín</option>
-                <option value="Moda">Moda y Accesorios</option>
-                <option value="Deportes">Deportes</option>
-                <option value="Vehículos">Vehículos</option>
-                <option value="Arte">Arte y Antigüedades</option>
-                <option value="Otros">Otros</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fa-solid fa-image mr-1 text-pink-600"></i>
-              URL de Imagen (opcional)
-            </label>
-            <input 
-              type="url" 
-              [(ngModel)]="newProduct.imagenUrl" 
-              name="imagenUrl"
-              placeholder="https://ejemplo.com/imagen.jpg"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-            <p class="text-xs text-gray-500 mt-1">Si no proporcionas una imagen, se usará una predeterminada</p>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fa-solid fa-calendar-xmark mr-1 text-red-600"></i>
-              Fecha y Hora de Cierre (opcional)
-            </label>
-            <input 
-              type="datetime-local" 
-              [(ngModel)]="newProduct.fechaCierre" 
-              name="fechaCierre"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-            <p class="text-xs text-gray-500 mt-1">Si no especificas, la subasta se cerrará en 7 días</p>
-          </div>
-
-          <div class="flex justify-end pt-4">
-            <button 
-              type="submit" 
-              class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center"
-            >
-              <i class="fa-solid fa-check-circle mr-2"></i>
-              Publicar Subasta
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Lista de productos -->
-      <div class="bg-white rounded-xl shadow-lg p-8">
-        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-          <i class="fa-solid fa-boxes mr-2 text-blue-600"></i>
-          Mis Subastas Activas
-        </h4>
-        
-        <div *ngIf="products.length === 0" class="text-center py-12">
-          <i class="fa-solid fa-box-open text-6xl text-gray-300 mb-4"></i>
-          <p class="text-gray-500 text-lg">Aún no has registrado productos en subasta</p>
-          <p class="text-gray-400 text-sm mt-2">Completa el formulario arriba para comenzar</p>
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="max-w-2xl mx-auto">
+    <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 shadow-lg">
+      <div class="flex items-center">
+        <i class="fa-solid fa-exclamation-circle text-red-500 text-3xl mr-4"></i>
+        <div>
+          <h3 class="text-red-800 font-bold text-lg">Error</h3>
+          <p class="text-red-700">{{ errorMessage }}</p>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <!-- Producto en edición -->
-          <div *ngIf="editingProduct" class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-6 shadow-lg">
-            <h5 class="font-bold text-lg mb-4 text-yellow-800 flex items-center">
-              <i class="fa-solid fa-edit mr-2"></i>
-              Editando
-            </h5>
-            
-            <div class="space-y-3">
-              <input 
-                type="text" 
-                [(ngModel)]="editingProduct.nombre" 
-                name="editNombre"
-                placeholder="Nombre"
-                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-              />
-              <textarea 
-                [(ngModel)]="editingProduct.descripcion" 
-                name="editDescripcion" 
-                rows="3"
-                placeholder="Descripción"
-                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 resize-none"
-              ></textarea>
-              <input 
-                type="number" 
-                [(ngModel)]="editingProduct.precioInicial" 
-                name="editPrecio"
-                placeholder="Precio"
-                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-              />
-            </div>
-
-            <div class="flex justify-end space-x-2 mt-4">
-              <button 
-                (click)="updateProduct()" 
-                type="button" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center"
-              >
-                <i class="fa-solid fa-save mr-1"></i>
-                Guardar
-              </button>
-              <button 
-                (click)="cancelEdit()" 
-                type="button" 
-                class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
-              >
-                Cancelar
-              </button>
-            </div>
+  <!-- Main Dashboard -->
+  <div *ngIf="!isLoading && !errorMessage && userProfile" class="max-w-7xl mx-auto">
+    
+    <!-- Header con info del usuario -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-2xl p-8 mb-8 text-white">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="flex items-center space-x-6 mb-4 md:mb-0">
+          <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-4 border-white/30 shadow-xl">
+            <i class="fa-solid fa-user text-5xl text-white"></i>
           </div>
-
-          <!-- Lista normal de productos -->
-          <div 
-            *ngFor="let p of products" 
-            class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-          >
-            <div class="relative h-48 bg-gray-100 overflow-hidden">
-              <img 
-                [src]="p.imagenUrl || '/assets/noimg.png'" 
-                [alt]="p.nombre"
-                class="w-full h-full object-cover"
-              />
-              <span 
-                class="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold text-white"
-                [ngClass]="{
-                  'bg-green-500': p.estado === 'activo',
-                  'bg-red-500': p.estado === 'finalizado'
-                }"
-              >
-                {{ p.estado === 'activo' ? 'En Subasta' : 'Finalizado' }}
+          <div>
+            <h1 class="text-3xl font-bold mb-2">¡Bienvenido, {{ userProfile.nombre }}!</h1>
+            <div class="flex items-center space-x-4 text-blue-100">
+              <span class="flex items-center">
+                <i class="fa-solid fa-envelope mr-2"></i>
+                {{ userProfile.email }}
+              </span>
+              <span *ngIf="userProfile.esVendedor" class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-bold flex items-center">
+                <i class="fa-solid fa-store mr-1"></i>
+                Vendedor Verificado
               </span>
             </div>
+          </div>
+        </div>
+        <button 
+          (click)="logout()"
+          class="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 border-2 border-white/30 rounded-xl font-semibold transition-all duration-300 hover:scale-105 flex items-center shadow-lg">
+          <i class="fa-solid fa-sign-out-alt mr-2"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
 
-            <div class="p-5">
-              <h5 class="font-bold text-lg text-gray-800 mb-2 line-clamp-1">{{ p.nombre }}</h5>
-              <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ p.descripcion }}</p>
-              
-              <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs text-gray-500">Precio inicial:</span>
-                  <span class="text-lg font-bold text-green-600">{{ p.precioInicial | currency:'USD':'symbol':'1.0-0' }}</span>
+    <!-- Stats Cards  -->
+    <div *ngIf="userProfile.esVendedor" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 transform hover:scale-105 transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium mb-1">Total Productos</p>
+            <p class="text-3xl font-bold text-gray-800">{{ products.length }}</p>
+          </div>
+          <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-box text-blue-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 transform hover:scale-105 transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium mb-1">Subastas Activas</p>
+            <p class="text-3xl font-bold text-gray-800">{{ getActiveAuctions() }}</p>
+          </div>
+          <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-gavel text-green-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 transform hover:scale-105 transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-gray-500 text-sm font-medium mb-1">Valor Total</p>
+            <p class="text-3xl font-bold text-gray-800">{{ getTotalValue() | currency:'USD':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+            <i class="fa-solid fa-dollar-sign text-purple-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="bg-white rounded-2xl shadow-xl mb-8 overflow-hidden">
+      <div class="flex border-b border-gray-200 overflow-x-auto">
+        <button 
+          class="flex-1 min-w-fit py-5 px-8 text-center font-semibold transition-all duration-300 relative group"
+          [class]="activeTab === 'personal' ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          (click)="setActiveTab('personal')"
+        >
+          <div class="flex items-center justify-center">
+            <i class="fa-solid fa-user mr-2 text-lg"></i>
+            <span>Información Personal</span>
+          </div>
+          <div *ngIf="activeTab === 'personal'" class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+        </button>
+        
+        <button 
+          class="flex-1 min-w-fit py-5 px-8 text-center font-semibold transition-all duration-300 relative group"
+          [class]="activeTab === 'account' ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          (click)="setActiveTab('account')"
+        >
+          <div class="flex items-center justify-center">
+            <i class="fa-solid fa-cog mr-2 text-lg"></i>
+            <span>Información de Cuenta</span>
+          </div>
+          <div *ngIf="activeTab === 'account'" class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+        </button>
+        
+        <button 
+          *ngIf="userProfile?.esVendedor"
+          class="flex-1 min-w-fit py-5 px-8 text-center font-semibold transition-all duration-300 relative group"
+          [class]="activeTab === 'productos' ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+          (click)="setActiveTab('productos')"
+        >
+          <div class="flex items-center justify-center">
+            <i class="fa-solid fa-box mr-2 text-lg"></i>
+            <span>Mis Productos</span>
+            <span *ngIf="products.length > 0" class="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">{{ products.length }}</span>
+          </div>
+          <div *ngIf="activeTab === 'productos'" class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="p-8">
+        <!-- Personal Information Tab -->
+        <div *ngIf="activeTab === 'personal'" class="space-y-6 animate-fadeIn">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Nombre Completo</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.nombre }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Correo Electrónico</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.email }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Tipo de Documento</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.tipoDocumento }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Número de Documento</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.numeroDocumento }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Teléfono</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.telefono }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border border-gray-200 shadow-sm">
+              <label class="text-sm font-semibold text-gray-500 mb-2 block">Dirección</label>
+              <p class="text-xl font-bold text-gray-800">{{ userProfile.direccion }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Information Tab -->
+        <div *ngIf="activeTab === 'account'" class="space-y-6 animate-fadeIn">
+          <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-l-4 border-blue-500">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fa-solid fa-info-circle mr-2 text-blue-600"></i>
+              Detalles de la Cuenta
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">Estado de la Cuenta</label>
+                <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-bold">
+                  <i class="fa-solid fa-check-circle mr-1"></i>
+                  Activa
+                </span>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">Fecha de Registro</label>
+                <p class="text-gray-800 font-medium">{{ userProfile.fechaRegistro | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">Tipo de Usuario</label>
+                <p class="text-gray-800 font-medium">{{ userProfile.esVendedor ? 'Vendedor' : 'Comprador' }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">ID de Usuario</label>
+                <p class="text-gray-800 font-medium font-mono text-sm">{{ userProfile._id }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de vendedor si aplica -->
+          <div *ngIf="userProfile.esVendedor && userProfile.datosVendedor" class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border-l-4 border-yellow-500">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fa-solid fa-store mr-2 text-yellow-600"></i>
+              Información del Vendedor
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div *ngIf="userProfile.datosVendedor.nombreEmpresa">
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">Nombre de la Empresa</label>
+                <p class="text-gray-800 font-medium">{{ userProfile.datosVendedor.nombreEmpresa }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">Tipo de Actividad</label>
+                <p class="text-gray-800 font-medium">{{ userProfile.datosVendedor.tipoActividad }}</p>
+              </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block">NIT</label>
+                <p class="text-gray-800 font-medium">{{ userProfile.datosVendedor.nit }}</p>
+              </div>
+            </div>
+            <div *ngIf="userProfile.datosVendedor.descripcionEmpresa" class="mt-4">
+              <label class="text-sm font-semibold text-gray-600 mb-1 block">Descripción</label>
+              <p class="text-gray-700">{{ userProfile.datosVendedor.descripcionEmpresa }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Productos Tab -->
+        <div *ngIf="activeTab === 'productos'" class="space-y-8 animate-fadeIn">
+          <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl p-8 text-white shadow-2xl">
+            <h3 class="text-3xl font-bold flex items-center mb-2">
+              <i class="fa-solid fa-gavel mr-3"></i>
+              Gestión de Subastas
+            </h3>
+            <p class="text-green-50 text-lg">Administra tus productos en subasta de forma profesional</p>
+          </div>
+
+          <!-- Formulario de nuevo producto -->
+          <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <h4 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <i class="fa-solid fa-plus-circle mr-3 text-green-600"></i>
+              Registrar Nueva Subasta
+            </h4>
+            
+            <form (ngSubmit)="createProduct()" class="space-y-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-tag mr-2 text-blue-500"></i>
+                    Nombre del Producto *
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="newProduct.nombre" 
+                    name="nombre" 
+                    required
+                    placeholder="Ej: iPhone 15 Pro Max 256GB"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
                 </div>
-                <div class="flex items-center text-xs text-gray-500">
-                  <i class="fa-solid fa-layer-group mr-1"></i>
-                  {{ p.categoria }}
+
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-align-left mr-2 text-blue-500"></i>
+                    Descripción *
+                  </label>
+                  <textarea 
+                    [(ngModel)]="newProduct.descripcion" 
+                    name="descripcion" 
+                    rows="4"
+                    required
+                    placeholder="Describe el producto en detalle: estado, características, incluye..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none"
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-dollar-sign mr-2 text-green-600"></i>
+                    Precio Inicial *
+                  </label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="newProduct.precioInicial" 
+                    name="precioInicial" 
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-layer-group mr-2 text-purple-600"></i>
+                    Categoría *
+                  </label>
+                  <select 
+                    [(ngModel)]="newProduct.categoria" 
+                    name="categoria"
+                    required
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    <option value="Electrónica">📱 Electrónica</option>
+                    <option value="Hogar">🏠 Hogar y Jardín</option>
+                    <option value="Moda">👔 Moda y Accesorios</option>
+                    <option value="Deportes">⚽ Deportes</option>
+                    <option value="Vehículos">🚗 Vehículos</option>
+                    <option value="Arte">🎨 Arte y Antigüedades</option>
+                    <option value="Otros">📦 Otros</option>
+                  </select>
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-image mr-2 text-pink-600"></i>
+                    URL de Imagen
+                  </label>
+                  <input 
+                    type="url" 
+                    [(ngModel)]="newProduct.imagenUrl" 
+                    name="imagenUrl"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                  <p class="text-xs text-gray-500 mt-2 flex items-center">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Si no proporcionas una imagen, se usará una predeterminada
+                  </p>
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fa-solid fa-calendar-xmark mr-2 text-red-600"></i>
+                    Fecha y Hora de Cierre
+                  </label>
+                  <input 
+                    type="datetime-local" 
+                    [(ngModel)]="newProduct.fechaCierre" 
+                    name="fechaCierre"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                  <p class="text-xs text-gray-500 mt-2 flex items-center">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Si no especificas, la subasta se cerrará en 7 días
+                  </p>
                 </div>
               </div>
 
-              <div class="flex space-x-2">
+              <div class="flex justify-end pt-4">
                 <button 
-                  (click)="editProduct(p)" 
-                  class="flex-1 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition text-sm font-medium flex items-center justify-center"
+                  type="submit" 
+                  class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-xl flex items-center text-lg"
                 >
-                  <i class="fa-solid fa-edit mr-1"></i>
-                  Editar
+                  <i class="fa-solid fa-check-circle mr-2"></i>
+                  Publicar Subasta
                 </button>
-                <button 
-                  class="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium flex items-center justify-center"
-                >
-                  <i class="fa-solid fa-trash mr-1"></i>
-                  Eliminar
-                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Lista de productos -->
+          <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+              <h4 class="text-2xl font-bold text-gray-800 flex items-center">
+                <i class="fa-solid fa-boxes mr-3 text-blue-600"></i>
+                Mis Subastas Activas
+              </h4>
+              <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-bold">
+                {{ products.length }} productos
+              </span>
+            </div>
+            
+            <div *ngIf="products.length === 0" class="text-center py-16">
+              <div class="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-box-open text-6xl text-gray-300"></i>
+              </div>
+              <h5 class="text-2xl font-bold text-gray-700 mb-2">No hay productos registrados</h5>
+              <p class="text-gray-500 text-lg">Completa el formulario arriba para registrar tu primera subasta</p>
+            </div>
+
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <!-- Producto en edición -->
+              <div *ngIf="editingProduct" class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-2xl p-6 shadow-xl">
+                <h5 class="font-bold text-xl mb-4 text-yellow-800 flex items-center">
+                  <i class="fa-solid fa-edit mr-2"></i>
+                  Editando Producto
+                </h5>
+                
+                <div class="space-y-3">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="editingProduct.nombre" 
+                    name="editNombre"
+                    placeholder="Nombre"
+                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                  />
+                  <textarea 
+                    [(ngModel)]="editingProduct.descripcion" 
+                    name="editDescripcion" 
+                    rows="3"
+                    placeholder="Descripción"
+                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 resize-none"
+                  ></textarea>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="editingProduct.precioInicial" 
+                    name="editPrecio"
+                    placeholder="Precio"
+                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+
+                <div class="flex gap-2 mt-4">
+                  <button 
+                    (click)="updateProduct()" 
+                    type="button" 
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center"
+                  >
+                    <i class="fa-solid fa-save mr-1"></i>
+                    Guardar
+                  </button>
+                  <button 
+                    (click)="cancelEdit()" 
+                    type="button" 
+                    class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-bold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Lista normal de productos -->
+              <div 
+                *ngFor="let p of products" 
+                class="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:border-blue-300 transition-all duration-300 transform hover:-translate-y-2"
+              >
+                <div class="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden group">
+                  <img 
+                    [src]="p.imagenUrl || '/assets/noimg.png'" 
+                    [alt]="p.nombre"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span 
+                    class="absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg backdrop-blur-sm"
+                    [ngClass]="{
+                      'bg-green-500': p.estado === 'activo',
+                      'bg-red-500': p.estado === 'finalizado'
+                    }"
+                  >
+                    <i class="fa-solid mr-1" [ngClass]="p.estado === 'activo' ? 'fa-circle-dot' : 'fa-check-circle'"></i>
+                    {{ p.estado === 'activo' ? 'En Subasta' : 'Finalizado' }}
+                  </span>
+                </div>
+
+                <div class="p-6">
+                  <h5 class="font-bold text-xl text-gray-800 mb-2 line-clamp-1">{{ p.nombre }}</h5>
+                  <p class="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">{{ p.descripcion }}</p>
+                  
+                  <div class="space-y-3 mb-4">
+                    <div class="flex items-center justify-between bg-green-50 rounded-lg p-3">
+                      <span class="text-xs text-gray-600 font-semibold">Precio inicial:</span>
+                      <span class="text-xl font-bold text-green-600">{{ p.precioInicial | currency:'USD':'symbol':'1.0-0' }}</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-2">
+                      <i class="fa-solid fa-layer-group mr-2 text-purple-600"></i>
+                      <span class="font-medium">{{ p.categoria }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-2">
+                    <button 
+                      (click)="editProduct(p)" 
+                      class="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 font-bold flex items-center justify-center shadow-md"
+                    >
+                      <i class="fa-solid fa-edit mr-1"></i>
+                      Editar
+                    </button>
+                    <button 
+                      (click)="deleteProduct(p._id!)"
+                      class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 font-bold flex items-center justify-center shadow-md"
+                    >
+                      <i class="fa-solid fa-trash mr-1"></i>
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
