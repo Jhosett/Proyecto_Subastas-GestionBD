@@ -47,7 +47,9 @@ export class DashboardComponent implements OnInit {
     precioInicial: 0,
     precioActual: 0,
     categoria: '',
-    vendedorId: ''
+    vendedorId: '',
+    imagenUrl: '',
+    fechaCierre: ''
   };
   editingProduct: Product | null = null;
 

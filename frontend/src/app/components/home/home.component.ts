@@ -10,11 +10,12 @@ import { ProductService } from '../../services/product.service';
 
 // 👇 Importar tu card de producto
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { CarruselComponent } from "../carrusel/carrusel.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, ProductCardComponent, CarruselComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {

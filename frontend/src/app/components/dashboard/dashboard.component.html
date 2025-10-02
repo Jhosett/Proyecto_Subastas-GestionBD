@@ -15,7 +15,6 @@
     >
       <i class="fa-solid fa-cog mr-2"></i> Información de Cuenta
     </button>
-    <!-- 🔹 Nueva pestaña solo visible si es vendedor -->
     <button 
       *ngIf="userProfile?.esVendedor"
       class="flex-1 py-4 px-6 text-center font-medium transition-all duration-200"
@@ -40,83 +39,250 @@
 
     <!-- 🔹 Productos Tab (solo para vendedores) -->
     <div *ngIf="activeTab === 'productos'" class="space-y-8">
-      <h3 class="text-xl font-bold text-gray-900 flex items-center">
-        <i class="fa-solid fa-box-open mr-3 text-green-600"></i>
-        Gestión de Productos
-      </h3>
+      <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+        <h3 class="text-2xl font-bold flex items-center">
+          <i class="fa-solid fa-gavel mr-3"></i>
+          Gestión de Subastas
+        </h3>
+        <p class="mt-2 text-green-50">Administra tus productos en subasta</p>
+      </div>
 
       <!-- Formulario de nuevo producto -->
-      <form (ngSubmit)="createProduct()" class="bg-gray-50 p-6 rounded-lg shadow-md space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-          <input type="text" [(ngModel)]="newProduct.nombre" name="nombre" required
-            class="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-500"/>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-          <textarea [(ngModel)]="newProduct.descripcion" name="descripcion" rows="3"
-            class="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-500"></textarea>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl shadow-lg p-8">
+        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fa-solid fa-plus-circle mr-2 text-green-600"></i>
+          Registrar Nueva Subasta
+        </h4>
+        
+        <form (ngSubmit)="createProduct()" class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Precio Inicial</label>
-            <input type="number" [(ngModel)]="newProduct.precioInicial" name="precioInicial" required
-              class="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-500"/>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fa-solid fa-tag mr-1 text-blue-500"></i>
+              Nombre del Producto *
+            </label>
+            <input 
+              type="text" 
+              [(ngModel)]="newProduct.nombre" 
+              name="nombre" 
+              required
+              placeholder="Ej: iPhone 15 Pro Max 256GB"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
-            <input type="text" [(ngModel)]="newProduct.categoria" name="categoria"
-              class="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-500"/>
-          </div>
-        </div>
 
-        <div class="flex justify-end">
-          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            Registrar Producto
-          </button>
-        </div>
-      </form>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fa-solid fa-align-left mr-1 text-blue-500"></i>
+              Descripción *
+            </label>
+            <textarea 
+              [(ngModel)]="newProduct.descripcion" 
+              name="descripcion" 
+              rows="4"
+              required
+              placeholder="Describe el producto en detalle: estado, características, incluye..."
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fa-solid fa-dollar-sign mr-1 text-green-600"></i>
+                Precio Inicial *
+              </label>
+              <input 
+                type="number" 
+                [(ngModel)]="newProduct.precioInicial" 
+                name="precioInicial" 
+                required
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fa-solid fa-layer-group mr-1 text-purple-600"></i>
+                Categoría *
+              </label>
+              <select 
+                [(ngModel)]="newProduct.categoria" 
+                name="categoria"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Selecciona una categoría</option>
+                <option value="Electrónica">Electrónica</option>
+                <option value="Hogar">Hogar y Jardín</option>
+                <option value="Moda">Moda y Accesorios</option>
+                <option value="Deportes">Deportes</option>
+                <option value="Vehículos">Vehículos</option>
+                <option value="Arte">Arte y Antigüedades</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fa-solid fa-image mr-1 text-pink-600"></i>
+              URL de Imagen (opcional)
+            </label>
+            <input 
+              type="url" 
+              [(ngModel)]="newProduct.imagenUrl" 
+              name="imagenUrl"
+              placeholder="https://ejemplo.com/imagen.jpg"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            <p class="text-xs text-gray-500 mt-1">Si no proporcionas una imagen, se usará una predeterminada</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fa-solid fa-calendar-xmark mr-1 text-red-600"></i>
+              Fecha y Hora de Cierre (opcional)
+            </label>
+            <input 
+              type="datetime-local" 
+              [(ngModel)]="newProduct.fechaCierre" 
+              name="fechaCierre"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
+            <p class="text-xs text-gray-500 mt-1">Si no especificas, la subasta se cerrará en 7 días</p>
+          </div>
+
+          <div class="flex justify-end pt-4">
+            <button 
+              type="submit" 
+              class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 shadow-lg flex items-center"
+            >
+              <i class="fa-solid fa-check-circle mr-2"></i>
+              Publicar Subasta
+            </button>
+          </div>
+        </form>
+      </div>
 
       <!-- Lista de productos -->
-      <div class="mt-8">
-        <h4 class="text-lg font-semibold mb-4">Mis Productos Registrados</h4>
+      <div class="bg-white rounded-xl shadow-lg p-8">
+        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fa-solid fa-boxes mr-2 text-blue-600"></i>
+          Mis Subastas Activas
+        </h4>
         
-        <div *ngIf="products.length === 0" class="text-gray-500">
-          Aún no has registrado productos.
+        <div *ngIf="products.length === 0" class="text-center py-12">
+          <i class="fa-solid fa-box-open text-6xl text-gray-300 mb-4"></i>
+          <p class="text-gray-500 text-lg">Aún no has registrado productos en subasta</p>
+          <p class="text-gray-400 text-sm mt-2">Completa el formulario arriba para comenzar</p>
         </div>
 
-        <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <!-- Producto en edición -->
-          <div *ngIf="editingProduct" class="bg-white shadow-md rounded-lg p-4">
-            <h5 class="font-bold mb-2">Editar Producto</h5>
-            <input type="text" [(ngModel)]="editingProduct.nombre" name="editNombre"
-              class="w-full mb-2 px-3 py-2 border rounded-md"/>
-            <textarea [(ngModel)]="editingProduct.descripcion" name="editDescripcion" rows="2"
-              class="w-full mb-2 px-3 py-2 border rounded-md"></textarea>
-            <input type="number" [(ngModel)]="editingProduct.precioInicial" name="editPrecio"
-              class="w-full mb-2 px-3 py-2 border rounded-md"/>
-            <div class="flex justify-end space-x-2">
-              <button (click)="updateProduct()" type="button" class="px-3 py-1 bg-blue-600 text-white rounded-md">
+          <div *ngIf="editingProduct" class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-6 shadow-lg">
+            <h5 class="font-bold text-lg mb-4 text-yellow-800 flex items-center">
+              <i class="fa-solid fa-edit mr-2"></i>
+              Editando
+            </h5>
+            
+            <div class="space-y-3">
+              <input 
+                type="text" 
+                [(ngModel)]="editingProduct.nombre" 
+                name="editNombre"
+                placeholder="Nombre"
+                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+              />
+              <textarea 
+                [(ngModel)]="editingProduct.descripcion" 
+                name="editDescripcion" 
+                rows="3"
+                placeholder="Descripción"
+                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 resize-none"
+              ></textarea>
+              <input 
+                type="number" 
+                [(ngModel)]="editingProduct.precioInicial" 
+                name="editPrecio"
+                placeholder="Precio"
+                class="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+              />
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+              <button 
+                (click)="updateProduct()" 
+                type="button" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center"
+              >
+                <i class="fa-solid fa-save mr-1"></i>
                 Guardar
               </button>
-              <button (click)="cancelEdit()" type="button" class="px-3 py-1 bg-gray-400 text-white rounded-md">
+              <button 
+                (click)="cancelEdit()" 
+                type="button" 
+                class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
+              >
                 Cancelar
               </button>
             </div>
           </div>
 
           <!-- Lista normal de productos -->
-          <div *ngFor="let p of products" class="bg-white shadow-md rounded-lg p-4">
-            <h5 class="font-bold text-lg">{{ p.nombre }}</h5>
-            <p class="text-sm text-gray-600">{{ p.descripcion }}</p>
-            <p class="text-blue-600 font-semibold mt-2">$ {{ p.precioInicial }}</p>
-            <p class="text-xs text-gray-500">Categoría: {{ p.categoria }}</p>
-            <div class="mt-3 flex justify-between">
-              <button (click)="editProduct(p)" class="px-3 py-1 bg-yellow-500 text-white rounded-md">
-                Editar
-              </button>
+          <div 
+            *ngFor="let p of products" 
+            class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            <div class="relative h-48 bg-gray-100 overflow-hidden">
+              <img 
+                [src]="p.imagenUrl || '/assets/noimg.png'" 
+                [alt]="p.nombre"
+                class="w-full h-full object-cover"
+              />
+              <span 
+                class="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold text-white"
+                [ngClass]="{
+                  'bg-green-500': p.estado === 'activo',
+                  'bg-red-500': p.estado === 'finalizado'
+                }"
+              >
+                {{ p.estado === 'activo' ? 'En Subasta' : 'Finalizado' }}
+              </span>
+            </div>
+
+            <div class="p-5">
+              <h5 class="font-bold text-lg text-gray-800 mb-2 line-clamp-1">{{ p.nombre }}</h5>
+              <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ p.descripcion }}</p>
+              
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-500">Precio inicial:</span>
+                  <span class="text-lg font-bold text-green-600">{{ p.precioInicial | currency:'USD':'symbol':'1.0-0' }}</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-500">
+                  <i class="fa-solid fa-layer-group mr-1"></i>
+                  {{ p.categoria }}
+                </div>
+              </div>
+
+              <div class="flex space-x-2">
+                <button 
+                  (click)="editProduct(p)" 
+                  class="flex-1 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition text-sm font-medium flex items-center justify-center"
+                >
+                  <i class="fa-solid fa-edit mr-1"></i>
+                  Editar
+                </button>
+                <button 
+                  class="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium flex items-center justify-center"
+                >
+                  <i class="fa-solid fa-trash mr-1"></i>
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         </div>

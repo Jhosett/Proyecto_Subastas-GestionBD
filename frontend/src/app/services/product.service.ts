@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
 
+
 export type { Product } from '../models/product.model';
 
 @Injectable({
@@ -26,7 +27,7 @@ export class ProductService {
 
   //  Crear producto (con sellerId asociado)
   createProduct(product: Product, sellerId: string): Observable<Product> {
-    const payload = { ...product, sellerId }; // se asegura que quede ligado al vendedor
+    const payload = { ...product, vendedorId: sellerId }; // ✅ Cambiar a vendedorId
     return this.http.post<Product>(this.apiUrl, payload);
   }
 
