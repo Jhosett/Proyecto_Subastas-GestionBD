@@ -14,7 +14,7 @@ import { CarruselComponent } from "../carrusel/carrusel.component";
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, ProductCardComponent, CarruselComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, CarruselComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
@@ -29,14 +29,15 @@ export class HomeComponent implements OnInit {
   sortBy: string = 'recent';
 
   categories = [
-    { name: 'Electrónica', icon: '📱' },
-    { name: 'Hogar', icon: '🏠' },
-    { name: 'Moda', icon: '👗' },
-    { name: 'Deportes', icon: '⚽' },
-    { name: 'Vehículos', icon: '🚗' },
-    { name: 'Arte', icon: '🎨' },
-    { name: 'Otros', icon: '📦' }
+    { name: 'Electrónica', icon: '/assets/iphone.png' },
+    { name: 'Hogar', icon: '/assets/casa.png' },
+    { name: 'Moda', icon: '/assets/vestir.png' },
+    { name: 'Deportes', icon: '/assets/deportes.png' },
+    { name: 'Vehículos', icon: '/assets/carro.png' },
+    { name: 'Arte', icon: '/assets/arte.png' },
+    { name: 'Otros', icon: '/assets/objetos.png' }
   ];
+  
 
   constructor(
     private productService: ProductService,
