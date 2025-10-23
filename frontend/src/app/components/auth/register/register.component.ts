@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { UsersService } from '../../../services/users.service';
+import { BackgroundComponent } from '../../background/background.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, BackgroundComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })

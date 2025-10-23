@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { UsersService } from '../../../services/users.service';
 import Swal from 'sweetalert2';
+import { BackgroundComponent } from '../../background/background.component';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, BackgroundComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
