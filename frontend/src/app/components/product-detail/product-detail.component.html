@@ -6,18 +6,47 @@
       <img 
         [src]="product.imagenUrl || '/assets/noimg.png'" 
         alt="{{ product.nombre }}" 
-        class="w-full h-80 object-cover rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105"
+        class="w-full h-96 object-contain bg-gray-50 rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105 cursor-pointer"
+        (click)="openImageModal()"
       >
       <!-- Badge de estado -->
       <span 
-        class="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-semibold text-white"
+        class="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-semibold text-white backdrop-blur-sm"
         [ngClass]="{
-          'bg-green-500': product.estado === 'activo',
-          'bg-red-500': product.estado === 'finalizado'
+          'bg-green-500/90': product.estado === 'activo',
+          'bg-red-500/90': product.estado === 'finalizado'
         }"
       >
         {{ product.estado | titlecase }}
       </span>
+      <!-- Zoom icon -->
+      <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <i class="fa-solid fa-expand text-white text-sm"></i>
+      </div>
+    </div>
+
+    <!-- Modal para imagen completa -->
+    <div 
+      *ngIf="showImageModal" 
+      class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-auto"
+      (click)="closeImageModal()"
+    >
+      <div class="min-h-full flex items-center justify-center p-4">
+        <div class="relative">
+          <img 
+            [src]="product.imagenUrl || '/public/assets/noimg.jpg' " 
+            alt="{{ product.nombre }}" 
+            class="max-w-full max-h-screen object-contain rounded-lg shadow-2xl"
+            (click)="$event.stopPropagation()"
+          >
+          <button 
+            (click)="closeImageModal()" 
+            class="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors"
+          >
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Información -->
@@ -27,17 +56,21 @@
         <p class="text-gray-600 mb-4 line-clamp-4">{{ product.descripcion }}</p>
 
         <div class="space-y-2">
-          <p class="text-gray-800">
-            <strong class="text-green-600">💲 Precio inicial:</strong> {{ product.precioInicial | currency:'USD':'symbol':'1.0-0' }}
+          <p class="flex items-center gap-2 text-gray-800">
+            <i class="fa-solid fa-dollar-sign text-green-700"></i>
+            <strong class="text-green-600">Precio inicial:</strong> {{ product.precioInicial | currency:'USD':'symbol':'1.0-0' }}
           </p>
-          <p class="text-gray-800">
-            <strong class="text-blue-600">💲 Precio actual:</strong> {{ product.precioActual | currency:'USD':'symbol':'1.0-0' }}
+          <p class="flex items-center gap-2 text-gray-800">
+            <i class="fa-solid fa-tag text-blue-900"></i>
+            <strong class="text-blue-600">Precio actual:</strong> {{ product.precioActual | currency:'USD':'symbol':'1.0-0' }}
           </p>
-          <p class="text-gray-800">
-            <strong class="text-purple-600">📂 Categoría:</strong> {{ product.categoria }}
+          <p class="flex items-center gap-2 text-gray-800">
+            <i class="fa-solid fa-folder text-purple-600"></i>
+            <strong class="text-purple-600">Categoría:</strong> {{ product.categoria }}
           </p>
-          <p class="text-gray-800">
-            <strong class="text-orange-500">⏳ Cierra:</strong> {{ product.fechaCierre | date:'short' }}
+          <p class="flex items-center gap-2 text-gray-800">
+            <i class="fa-solid fa-clock text-orange-500"></i>
+            <strong class="text-orange-500">Cierra:</strong> {{ product.fechaCierre | date:'short' }}
           </p>
         </div>
       </div>

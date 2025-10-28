@@ -12,6 +12,7 @@ import { Product, ProductService } from '../../services/product.service';
 export class ProductDetailComponent implements OnInit {
   
   @Input() product: Product | null = null;
+  showImageModal: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,6 +27,14 @@ export class ProductDetailComponent implements OnInit {
         error: (err) => console.error('Error al cargar el producto', err)
       });
     }
+  }
+
+  openImageModal(): void {
+    this.showImageModal = true;
+  }
+
+  closeImageModal(): void {
+    this.showImageModal = false;
   }
 
   pujar(): void {
