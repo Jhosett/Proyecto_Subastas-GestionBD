@@ -39,6 +39,9 @@ export class RegisterComponent {
     numeroDocumento: '',
     telefono: '',
     direccion: '',
+    pais: '',
+    departamento: '',
+    ciudad: '',
     email: '',
     password: ''
   };
@@ -54,12 +57,22 @@ export class RegisterComponent {
     this.activeTab = tab;
   }
 
-  isPersonalInfoValid(): boolean {
+  isBasicInfoValid(): boolean {
     return !!(this.registerData.nombre && 
              this.registerData.tipoDocumento && 
              this.registerData.numeroDocumento && 
              this.registerData.telefono && 
              this.registerData.direccion);
+  }
+
+  isLocationInfoValid(): boolean {
+    return !!(this.registerData.pais &&
+             this.registerData.departamento &&
+             this.registerData.ciudad);
+  }
+
+  isPersonalInfoValid(): boolean {
+    return this.isBasicInfoValid() && this.isLocationInfoValid();
   }
 
   isFormValid(): boolean {
@@ -70,11 +83,13 @@ export class RegisterComponent {
                              this.registerData.password === this.confirmPassword && 
                              this.acceptTerms);
     
+    const hasValidationErrors = Object.keys(this.validationErrors).length > 0;
+    
     if (!this.wantToSell) {
-      return basicFormValid;
+      return basicFormValid && !hasValidationErrors;
     }
     
-    return basicFormValid && this.isSellerInfoValid();
+    return basicFormValid && this.isSellerInfoValid() && !hasValidationErrors;
   }
 
   isSellerInfoValid(): boolean {
@@ -146,9 +161,11 @@ export class RegisterComponent {
           console.error('Registration error:', error);
           this.isLoading = false;
           
+          const errorMessage = error.error?.error || 'Hubo un problema al crear tu cuenta. Por favor, inténtalo nuevamente.';
+          
           Swal.fire({
             title: 'Error en el registro',
-            text: 'Hubo un problema al crear tu cuenta. Por favor, inténtalo nuevamente.',
+            text: errorMessage,
             icon: 'error',
             confirmButtonText: 'Intentar de nuevo',
             confirmButtonColor: '#ef4444'
@@ -156,5 +173,32 @@ export class RegisterComponent {
         }
       });
     }
+  }
+
+  validationErrors: any = {};
+
+  validateUniqueField(field: string, value: string): void {
+    if (!value) return;
+    
+    this.usersService.validateField(field, value).subscribe({
+      next: (response) => {
+        if (response.exists) {
+          this.validationErrors[field] = this.getFieldErrorMessage(field);
+        } else {
+          delete this.validationErrors[field];
+        }
+      },
+      error: () => delete this.validationErrors[field]
+    });
+  }
+
+  getFieldErrorMessage(field: string): string {
+    const messages: any = {
+      'email': 'Este correo electrónico ya está registrado',
+      'numeroDocumento': 'Este número de documento ya está registrado',
+      'telefono': 'Este teléfono ya está registrado',
+      'datosVendedor.nit': 'Este NIT ya está registrado'
+    };
+    return messages[field] || 'Este valor ya está registrado';
   }
 }

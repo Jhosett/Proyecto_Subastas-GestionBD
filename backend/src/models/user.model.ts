@@ -7,6 +7,9 @@ export interface User extends Document {
   numeroDocumento: string;
   telefono: string;
   direccion: string;
+  pais: string;
+  departamento: string;
+  ciudad: string;
   email: string;
   password: string;
   esVendedor: boolean;
@@ -43,6 +46,21 @@ const userSchema = new Schema<User>({
     match: /^[0-9]{10,15}$/
   },
   direccion: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  pais: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  departamento: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  ciudad: {
     type: String,
     required: true,
     trim: true

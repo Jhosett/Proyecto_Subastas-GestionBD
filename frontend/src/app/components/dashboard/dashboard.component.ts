@@ -15,6 +15,9 @@ interface UserProfile {
   numeroDocumento: string;
   telefono: string;
   direccion: string;
+  pais: string;
+  departamento: string;
+  ciudad: string;
   email: string;
   esVendedor: boolean;
   datosVendedor?: {
@@ -333,20 +336,32 @@ export class DashboardComponent implements OnInit {
       html: `
         <div class="p-4">
           <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-user text-blue-500 mr-2"></i>Nombre Completo</label>
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-user text-blue-500 mr-2"></i>Nombre Completo</label>
             <input id="nombre" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu nombre completo" value="${this.userProfile.nombre}">
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-envelope text-blue-500 mr-2"></i>Correo Electrónico</label>
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-envelope text-blue-500 mr-2"></i>Correo Electrónico</label>
             <input id="email" type="email" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="correo@ejemplo.com" value="${this.userProfile.email}">
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-phone text-blue-500 mr-2"></i>Teléfono</label>
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-phone text-blue-500 mr-2"></i>Teléfono</label>
             <input id="telefono" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ej: +57 300 123 4567" value="${this.userProfile.telefono}">
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-map-marker-alt text-blue-500 mr-2"></i>Dirección</label>
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-map-marker-alt text-blue-500 mr-2"></i>Dirección</label>
             <input id="direccion" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu dirección completa" value="${this.userProfile.direccion}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-globe text-blue-500 mr-2"></i>País</label>
+            <input id="pais" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu país" value="${this.userProfile.pais}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-map text-blue-500 mr-2"></i>Departamento</label>
+            <input id="departamento" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu departamento" value="${this.userProfile.departamento}">
+          </div>
+          <div class="mb-4">
+            <label class="block text-left text-sm font-bold text-gray-700 mb-2"><i class="fa-solid fa-city text-blue-500 mr-2"></i>Ciudad</label>
+            <input id="ciudad" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none transition-colors" placeholder="Ingresa tu ciudad" value="${this.userProfile.ciudad}">
           </div>
         </div>
       `,
@@ -368,13 +383,16 @@ export class DashboardComponent implements OnInit {
         const email = (document.getElementById('email') as HTMLInputElement).value;
         const telefono = (document.getElementById('telefono') as HTMLInputElement).value;
         const direccion = (document.getElementById('direccion') as HTMLInputElement).value;
+        const pais = (document.getElementById('pais') as HTMLInputElement).value;
+        const departamento = (document.getElementById('departamento') as HTMLInputElement).value;
+        const ciudad = (document.getElementById('ciudad') as HTMLInputElement).value;
         
-        if (!nombre || !email || !telefono || !direccion) {
+        if (!nombre || !email || !telefono || !direccion || !pais || !departamento || !ciudad) {
           Swal.showValidationMessage('<i class="fa-solid fa-exclamation-triangle text-red-500 mr-2"></i>Todos los campos son obligatorios');
           return false;
         }
         
-        return { nombre, email, telefono, direccion };
+        return { nombre, email, telefono, direccion, pais, departamento, ciudad };
       }
     }).then((result) => {
       if (result.isConfirmed && this.userProfile) {

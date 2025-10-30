@@ -38,4 +38,8 @@ export class UsersService {
   updateProfile(userId: string, profileData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/${userId}`, profileData);
   }
+
+  validateField(field: string, value: string, userId?: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/validate`, { field, value, userId });
+  }
 }

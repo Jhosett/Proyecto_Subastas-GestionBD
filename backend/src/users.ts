@@ -9,6 +9,34 @@ router.post('/register', async (req, res) => {
   try {
     console.log('Received data:', req.body);
 
+    // Validar campos únicos
+    const { email, numeroDocumento, telefono, datosVendedor } = req.body;
+    
+    const existingUser = await User.findOne({
+      $or: [
+        { email },
+        { numeroDocumento },
+        { telefono }
+      ]
+    });
+
+    if (existingUser) {
+      let field = '';
+      if (existingUser.email === email) field = 'correo electrónico';
+      else if (existingUser.numeroDocumento === numeroDocumento) field = 'número de documento';
+      else if (existingUser.telefono === telefono) field = 'teléfono';
+      
+      return res.status(400).json({ error: `El ${field} ya está registrado` });
+    }
+
+    // Validar NIT si es vendedor
+    if (datosVendedor?.nit) {
+      const existingNit = await User.findOne({ 'datosVendedor.nit': datosVendedor.nit });
+      if (existingNit) {
+        return res.status(400).json({ error: 'El NIT ya está registrado' });
+      }
+    }
+
     // Encriptar contraseña
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -52,15 +80,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Validar campos únicos
+router.post('/validate', async (req, res) => {
+  try {
+    const { field, value, userId } = req.body;
+    const query = { [field]: value };
+    if (userId) query._id = { $ne: userId };
+    
+    const exists = await User.findOne(query);
+    return res.json({ exists: !!exists });
+  } catch (error) {
+    return res.status(500).json({ error: 'Error de validación' });
+  }
+});
+
 // Actualizar usuario
 router.put('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, telefono, direccion } = req.body;
+    const updateData = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { nombre, telefono, direccion },
+      updateData,
       { new: true }
     );
 
