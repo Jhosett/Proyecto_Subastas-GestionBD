@@ -42,4 +42,12 @@ export class UsersService {
   validateField(field: string, value: string, userId?: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/validate`, { field, value, userId });
   }
+
+  getAllUsers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users`);
+  }
+
+  logout(userId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, { userId });
+  }
 }

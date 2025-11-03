@@ -53,10 +53,14 @@ export class LoginComponent {
             title: '¡Bienvenido!',
             text: `Hola ${response.user.nombre}, has iniciado sesión correctamente.`,
             icon: 'success',
-            confirmButtonText: 'Ir al Dashboard',
+            confirmButtonText: response.user.isAdmin ? 'Ir al Panel de Admin' : 'Ir al Dashboard',
             confirmButtonColor: '#3b82f6'
           }).then(() => {
-            this.router.navigate(['/dashboard']);
+            if (response.user.isAdmin) {
+              this.router.navigate(['/admin-profile']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
           });
         },
         error: (error) => {

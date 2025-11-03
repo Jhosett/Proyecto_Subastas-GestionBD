@@ -50,3 +50,34 @@ Content-Type: application/json
 Eliminar un producto
 
 DELETE http://localhost:8000/api/products/68dca5d8467fee4c59546e68
+
+### Register test user
+POST http://localhost:8000/api/register
+Content-Type: application/json
+
+{
+  "nombre": "Admin Test",
+  "tipoDocumento": "cc",
+  "numeroDocumento": "1234567890",
+  "telefono": "3001234567",
+  "direccion": "Calle 123",
+  "pais": "Colombia",
+  "departamento": "Cundinamarca",
+  "ciudad": "Bogotá",
+  "email": "admin@test.com",
+  "password": "123456",
+  "esVendedor": false,
+  "isAdmin": true
+}
+
+### Login test user
+POST http://localhost:8000/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "123456"
+}
+
+### Get all users
+GET http://localhost:8000/api/users

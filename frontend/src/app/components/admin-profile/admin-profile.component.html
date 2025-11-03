@@ -1,0 +1,65 @@
+<div class="admin-container">
+  <div class="header">
+    <h1>Panel de Administración</h1>
+    <p>Gestión de usuarios del sistema</p>
+  </div>
+
+  <div class="users-section">
+    <div class="section-header">
+      <h2>Lista de Usuarios</h2>
+      <span class="user-count">Total: {{ users.length }} usuarios</span>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      Cargando usuarios...
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+      <button (click)="loadUsers()" class="retry-btn">Reintentar</button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && users.length === 0" class="no-users">
+      No hay usuarios registrados
+    </div>
+
+    <div *ngIf="!isLoading && users.length > 0" class="table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo Electrónico</th>
+            <th>Fecha de Registro</th>
+            <th>Último Login</th>
+            <th>Último Logout</th>
+            <th>Rol</th>
+            <th>País</th>
+            <th>Departamento</th>
+            <th>Ciudad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users" class="user-row">
+            <td class="user-name">{{ user.nombre }}</td>
+            <td class="user-email">{{ user.email }}</td>
+            <td class="user-date">{{ user.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="user-login">{{ user.ultimoLogin ? (user.ultimoLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
+            <td class="user-logout">{{ user.ultimoLogout ? (user.ultimoLogout | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
+            <td class="user-role">
+              <span class="role-badge" [ngClass]="{
+                'admin': user.isAdmin,
+                'seller': user.esVendedor && !user.isAdmin,
+                'buyer': !user.esVendedor && !user.isAdmin
+              }">
+                {{ getRoleText(user) }}
+              </span>
+            </td>
+            <td class="user-country">{{ user.pais }}</td>
+            <td class="user-department">{{ user.departamento }}</td>
+            <td class="user-city">{{ user.ciudad }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

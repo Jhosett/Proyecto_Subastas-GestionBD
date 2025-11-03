@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, Router } from "@angular/router";
 import { CommonModule } from '@angular/common';
+import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-header',
@@ -11,10 +12,11 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   username = '';
+  isAdmin = false;
   showUserMenu = false;
   private checkInterval: any;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private usersService: UsersService) {}
 
   ngOnInit() {
     this.checkLoginStatus();
@@ -41,9 +43,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       const user = JSON.parse(userData);
       this.isLoggedIn = true;
       this.username = user.nombre || user.username;
+      this.isAdmin = user.isAdmin || false;
     } else {
       this.isLoggedIn = false;
       this.username = '';
+      this.isAdmin = false;
       this.showUserMenu = false;
     }
   }
@@ -53,9 +57,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.usersService.logout(user._id).subscribe();
+    }
+    
     localStorage.removeItem('userData');
     this.isLoggedIn = false;
     this.username = '';
+    this.isAdmin = false;
     this.showUserMenu = false;
     this.router.navigate(['/']);
   }

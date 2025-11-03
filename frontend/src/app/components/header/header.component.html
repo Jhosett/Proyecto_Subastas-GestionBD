@@ -84,6 +84,10 @@
                 <i class="fa-solid fa-tachometer-alt"></i>
                 <span>Dashboard</span>
               </a>
+              <a *ngIf="isAdmin" routerLink="/admin-profile" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+              </a>
               <hr class="my-1">
               <button (click)="logout()" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2">
                 <i class="fa-solid fa-sign-out-alt"></i>

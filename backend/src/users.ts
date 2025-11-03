@@ -70,6 +70,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    // Update login timestamp
+    user.ultimoLogin = new Date();
+    await user.save();
     
     const { password: _, ...userResponse } = user.toObject();
     return res.json({ user: userResponse, message: 'Login exitoso' });
@@ -84,13 +87,36 @@ router.post('/login', async (req, res) => {
 router.post('/validate', async (req, res) => {
   try {
     const { field, value, userId } = req.body;
-    const query = { [field]: value };
+    const query: any = { [field]: value };
     if (userId) query._id = { $ne: userId };
     
     const exists = await User.findOne(query);
     return res.json({ exists: !!exists });
   } catch (error) {
     return res.status(500).json({ error: 'Error de validación' });
+  }
+});
+
+// Logout de usuario
+router.post('/logout', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    await User.findByIdAndUpdate(userId, { ultimoLogout: new Date() });
+    return res.json({ message: 'Logout registrado' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return res.status(500).json({ error: 'Error en logout' });
+  }
+});
+
+// Obtener todos los usuarios (solo para admin)
+router.get('/users', async (_, res) => {
+  try {
+    const users = await User.find({}, '-password').sort({ fechaRegistro: -1 });
+    return res.json({ users });
+  } catch (error) {
+    console.error('Get users error:', error);
+    return res.status(500).json({ error: 'Error al obtener usuarios' });
   }
 });
 

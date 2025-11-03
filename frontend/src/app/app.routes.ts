@@ -11,6 +11,7 @@ import { ProductListComponent } from './components/product-list/product-list.com
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
+import { AdminProfileComponent } from './components/admin-profile/admin-profile.component';
 
 export const routes: Routes = [
   
@@ -20,6 +21,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent },
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'admin-profile', component: AdminProfileComponent },
 
      
       { path: 'products', component: ProductListComponent },

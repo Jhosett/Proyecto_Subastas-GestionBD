@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -34,7 +33,7 @@ interface UserProfile {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   userProfile: UserProfile | null = null;
@@ -51,9 +50,26 @@ export class DashboardComponent implements OnInit {
     categoria: '',
     vendedorId: '',
     imagenUrl: '',
-    fechaCierre: ''
+    fechaCierre: '',
   };
   editingProduct: Product | null = null;
+
+  showOptions = false;
+
+  categorias = [
+    { nombre: 'Electrónica', icon: 'fa-solid fa-mobile-screen' },
+    { nombre: 'Hogar y Jardín', icon: 'fa-solid fa-house' },
+    { nombre: 'Moda y Accesorios', icon: 'fa-solid fa-shirt' },
+    { nombre: 'Deportes', icon: 'fa-solid fa-football' },
+    { nombre: 'Vehículos', icon: 'fa-solid fa-car' },
+    { nombre: 'Arte y Antigüedades', icon: 'fa-solid fa-palette' },
+    { nombre: 'Otros', icon: 'fa-solid fa-box' },
+  ];
+
+  selectCategoria(cat: any) {
+    this.newProduct.categoria = cat.nombre;
+    this.showOptions = false;
+  }
 
   constructor(
     private usersService: UsersService,
@@ -83,7 +99,8 @@ export class DashboardComponent implements OnInit {
           this.loadProducts();
         }
       } else {
-        this.errorMessage = 'No se encontró información del usuario. Por favor, inicia sesión.';
+        this.errorMessage =
+          'No se encontró información del usuario. Por favor, inicia sesión.';
         this.isLoading = false;
         setTimeout(() => {
           this.router.navigate(['/login']);
@@ -107,9 +124,9 @@ export class DashboardComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'No se pudieron cargar los productos'
+          text: 'No se pudieron cargar los productos',
         });
-      }
+      },
     });
   }
 
@@ -117,13 +134,17 @@ export class DashboardComponent implements OnInit {
     if (!this.userProfile) return;
 
     // Validación
-    if (!this.newProduct.nombre || !this.newProduct.descripcion || 
-        !this.newProduct.precioInicial || !this.newProduct.categoria) {
+    if (
+      !this.newProduct.nombre ||
+      !this.newProduct.descripcion ||
+      !this.newProduct.precioInicial ||
+      !this.newProduct.categoria
+    ) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
         text: 'Por favor completa todos los campos obligatorios',
-        confirmButtonColor: '#3b82f6'
+        confirmButtonColor: '#3b82f6',
       });
       return;
     }
@@ -131,7 +152,7 @@ export class DashboardComponent implements OnInit {
     const productData: Product = {
       ...this.newProduct,
       vendedorId: this.userProfile._id,
-      precioActual: this.newProduct.precioInicial || 0
+      precioActual: this.newProduct.precioInicial || 0,
     } as Product;
 
     // Mostrar loading
@@ -141,36 +162,38 @@ export class DashboardComponent implements OnInit {
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
 
-    this.productService.createProduct(productData, this.userProfile._id).subscribe({
-      next: (created) => {
-        Swal.fire({
-          icon: 'success',
-          title: '¡Producto Registrado!',
-          text: 'Tu producto se ha publicado correctamente en la subasta',
-          confirmButtonColor: '#10b981',
-          timer: 2000
-        });
-        this.products.unshift(created); 
-        this.resetNewProductForm();
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al publicar',
-          text: 'No se pudo registrar el producto. Por favor intenta de nuevo.',
-          confirmButtonColor: '#ef4444'
-        });
-      }
-    });
+    this.productService
+      .createProduct(productData, this.userProfile._id)
+      .subscribe({
+        next: (created) => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Producto Registrado!',
+            text: 'Tu producto se ha publicado correctamente en la subasta',
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+          });
+          this.products.unshift(created);
+          this.resetNewProductForm();
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al publicar',
+            text: 'No se pudo registrar el producto. Por favor intenta de nuevo.',
+            confirmButtonColor: '#ef4444',
+          });
+        },
+      });
   }
 
   editProduct(product: Product) {
     this.editingProduct = { ...product };
-    
+
     setTimeout(() => {
       const editForm = document.querySelector('.from-yellow-50');
       if (editForm) {
@@ -183,13 +206,16 @@ export class DashboardComponent implements OnInit {
     if (!this.editingProduct) return;
 
     // Validación
-    if (!this.editingProduct.nombre || !this.editingProduct.descripcion || 
-        !this.editingProduct.precioInicial) {
+    if (
+      !this.editingProduct.nombre ||
+      !this.editingProduct.descripcion ||
+      !this.editingProduct.precioInicial
+    ) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos incompletos',
         text: 'Por favor completa todos los campos obligatorios',
-        confirmButtonColor: '#3b82f6'
+        confirmButtonColor: '#3b82f6',
       });
       return;
     }
@@ -200,32 +226,34 @@ export class DashboardComponent implements OnInit {
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
 
-    this.productService.updateProduct(this.editingProduct._id!, this.editingProduct).subscribe({
-      next: (updated) => {
-        Swal.fire({
-          icon: 'success',
-          title: '¡Actualizado!',
-          text: 'El producto se ha modificado correctamente',
-          confirmButtonColor: '#10b981',
-          timer: 2000
-        });
-        const index = this.products.findIndex(p => p._id === updated._id);
-        if (index !== -1) this.products[index] = updated;
-        this.editingProduct = null;
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo actualizar el producto',
-          confirmButtonColor: '#ef4444'
-        });
-      }
-    });
+    this.productService
+      .updateProduct(this.editingProduct._id!, this.editingProduct)
+      .subscribe({
+        next: (updated) => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado!',
+            text: 'El producto se ha modificado correctamente',
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+          });
+          const index = this.products.findIndex((p) => p._id === updated._id);
+          if (index !== -1) this.products[index] = updated;
+          this.editingProduct = null;
+        },
+        error: (err) => {
+          console.error(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el producto',
+            confirmButtonColor: '#ef4444',
+          });
+        },
+      });
   }
 
   deleteProduct(productId: string) {
@@ -237,7 +265,7 @@ export class DashboardComponent implements OnInit {
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
@@ -246,7 +274,7 @@ export class DashboardComponent implements OnInit {
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
-          }
+          },
         });
 
         this.productService.deleteProduct(productId).subscribe({
@@ -256,9 +284,9 @@ export class DashboardComponent implements OnInit {
               title: 'Eliminado',
               text: 'El producto ha sido eliminado correctamente',
               confirmButtonColor: '#10b981',
-              timer: 2000
+              timer: 2000,
             });
-            this.products = this.products.filter(p => p._id !== productId);
+            this.products = this.products.filter((p) => p._id !== productId);
           },
           error: (err) => {
             console.error(err);
@@ -266,9 +294,9 @@ export class DashboardComponent implements OnInit {
               icon: 'error',
               title: 'Error',
               text: 'No se pudo eliminar el producto',
-              confirmButtonColor: '#ef4444'
+              confirmButtonColor: '#ef4444',
             });
-          }
+          },
         });
       }
     });
@@ -279,25 +307,27 @@ export class DashboardComponent implements OnInit {
   }
 
   resetNewProductForm() {
-    this.newProduct = { 
-      nombre: '', 
-      descripcion: '', 
-      precioInicial: 0, 
-      precioActual: 0, 
-      categoria: '', 
+    this.newProduct = {
+      nombre: '',
+      descripcion: '',
+      precioInicial: 0,
+      precioActual: 0,
+      categoria: '',
       vendedorId: this.userProfile?._id || '',
       imagenUrl: '',
-      fechaCierre: ''
+      fechaCierre: '',
     };
   }
 
- 
   getActiveAuctions(): number {
-    return this.products.filter(p => p.estado === 'activo').length;
+    return this.products.filter((p) => p.estado === 'activo').length;
   }
 
   getTotalValue(): number {
-    return this.products.reduce((sum, p) => sum + (p.precioActual || p.precioInicial || 0), 0);
+    return this.products.reduce(
+      (sum, p) => sum + (p.precioActual || p.precioInicial || 0),
+      0
+    );
   }
 
   logout() {
@@ -309,9 +339,14 @@ export class DashboardComponent implements OnInit {
       confirmButtonColor: '#3b82f6',
       cancelButtonColor: '#6b7280',
       confirmButtonText: 'Sí, salir',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+        // Record logout timestamp
+        if (this.userProfile) {
+          this.usersService.logout(this.userProfile._id).subscribe();
+        }
+        
         localStorage.removeItem('userData');
         localStorage.removeItem('currentUser');
         Swal.fire({
@@ -319,7 +354,7 @@ export class DashboardComponent implements OnInit {
           title: 'Sesión cerrada',
           text: 'Hasta pronto',
           timer: 1500,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         setTimeout(() => {
           this.router.navigate(['/']);
@@ -332,7 +367,8 @@ export class DashboardComponent implements OnInit {
     if (!this.userProfile) return;
 
     Swal.fire({
-      title: '<i class="fa-solid fa-user-edit text-blue-600"></i> Editar Información Personal',
+      title:
+        '<i class="fa-solid fa-user-edit text-blue-600"></i> Editar Información Personal',
       html: `
         <div class="p-4">
           <div class="mb-4">
@@ -372,28 +408,58 @@ export class DashboardComponent implements OnInit {
       cancelButtonColor: '#6b7280',
       buttonsStyling: false,
       customClass: {
-        confirmButton: 'px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors mr-3',
-        cancelButton: 'px-6 py-3 bg-gray-500 text-white font-bold rounded-xl hover:bg-gray-600 transition-colors',
+        confirmButton:
+          'px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors mr-3',
+        cancelButton:
+          'px-6 py-3 bg-gray-500 text-white font-bold rounded-xl hover:bg-gray-600 transition-colors',
         popup: 'rounded-2xl shadow-2xl',
-        title: 'text-2xl font-bold text-gray-800 mb-4'
+        title: 'text-2xl font-bold text-gray-800 mb-4',
       },
       width: '500px',
       preConfirm: () => {
-        const nombre = (document.getElementById('nombre') as HTMLInputElement).value;
-        const email = (document.getElementById('email') as HTMLInputElement).value;
-        const telefono = (document.getElementById('telefono') as HTMLInputElement).value;
-        const direccion = (document.getElementById('direccion') as HTMLInputElement).value;
-        const pais = (document.getElementById('pais') as HTMLInputElement).value;
-        const departamento = (document.getElementById('departamento') as HTMLInputElement).value;
-        const ciudad = (document.getElementById('ciudad') as HTMLInputElement).value;
-        
-        if (!nombre || !email || !telefono || !direccion || !pais || !departamento || !ciudad) {
-          Swal.showValidationMessage('<i class="fa-solid fa-exclamation-triangle text-red-500 mr-2"></i>Todos los campos son obligatorios');
+        const nombre = (document.getElementById('nombre') as HTMLInputElement)
+          .value;
+        const email = (document.getElementById('email') as HTMLInputElement)
+          .value;
+        const telefono = (
+          document.getElementById('telefono') as HTMLInputElement
+        ).value;
+        const direccion = (
+          document.getElementById('direccion') as HTMLInputElement
+        ).value;
+        const pais = (document.getElementById('pais') as HTMLInputElement)
+          .value;
+        const departamento = (
+          document.getElementById('departamento') as HTMLInputElement
+        ).value;
+        const ciudad = (document.getElementById('ciudad') as HTMLInputElement)
+          .value;
+
+        if (
+          !nombre ||
+          !email ||
+          !telefono ||
+          !direccion ||
+          !pais ||
+          !departamento ||
+          !ciudad
+        ) {
+          Swal.showValidationMessage(
+            '<i class="fa-solid fa-exclamation-triangle text-red-500 mr-2"></i>Todos los campos son obligatorios'
+          );
           return false;
         }
-        
-        return { nombre, email, telefono, direccion, pais, departamento, ciudad };
-      }
+
+        return {
+          nombre,
+          email,
+          telefono,
+          direccion,
+          pais,
+          departamento,
+          ciudad,
+        };
+      },
     }).then((result) => {
       if (result.isConfirmed && this.userProfile) {
         this.savePersonalInfo(result.value);
@@ -407,27 +473,29 @@ export class DashboardComponent implements OnInit {
     Swal.fire({
       title: 'Actualizando información...',
       allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
+      didOpen: () => Swal.showLoading(),
     });
 
     const updatedProfile = { ...this.userProfile, ...data };
-    
-    this.usersService.updateProfile(this.userProfile._id, updatedProfile).subscribe({
-      next: (updated) => {
-        this.userProfile = updated;
-        localStorage.setItem('userData', JSON.stringify(updated));
-        Swal.fire({
-          icon: 'success',
-          title: '¡Información actualizada!',
-          timer: 2000
-        });
-      },
-      error: () => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al actualizar'
-        });
-      }
-    });
+
+    this.usersService
+      .updateProfile(this.userProfile._id, updatedProfile)
+      .subscribe({
+        next: (updated) => {
+          this.userProfile = updated;
+          localStorage.setItem('userData', JSON.stringify(updated));
+          Swal.fire({
+            icon: 'success',
+            title: '¡Información actualizada!',
+            timer: 2000,
+          });
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al actualizar',
+          });
+        },
+      });
   }
 }

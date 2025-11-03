@@ -13,6 +13,7 @@ export interface User extends Document {
   email: string;
   password: string;
   esVendedor: boolean;
+  isAdmin: boolean;
   datosVendedor?: {
     tipoActividad: 'individual' | 'empresa';
     nombreEmpresa?: string;
@@ -20,6 +21,8 @@ export interface User extends Document {
     nit: string;
   };
   fechaRegistro: Date;
+  ultimoLogin?: Date;
+  ultimoLogout?: Date;
 }
 
 
@@ -81,6 +84,10 @@ const userSchema = new Schema<User>({
     type: Boolean,
     default: false
   },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   datosVendedor: {
     tipoActividad: {
       type: String,
@@ -104,6 +111,12 @@ const userSchema = new Schema<User>({
   fechaRegistro: {
     type: Date,
     default: Date.now
+  },
+  ultimoLogin: {
+    type: Date
+  },
+  ultimoLogout: {
+    type: Date
   }
 }, {
   timestamps: true
