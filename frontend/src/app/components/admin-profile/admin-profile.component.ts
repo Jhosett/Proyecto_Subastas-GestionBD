@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-admin-profile',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-profile.component.html',
   styleUrl: './admin-profile.component.css'
 })
@@ -13,6 +14,15 @@ export class AdminProfileComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string = '';
   private refreshInterval: any;
+
+  // Filter properties
+  filters = {
+    pais: '',
+    rol: '',
+    desde: '',
+    hasta: '',
+    search: ''
+  };
 
   constructor(private usersService: UsersService) {}
 
@@ -33,12 +43,20 @@ export class AdminProfileComponent implements OnInit, OnDestroy {
   loadUsers() {
     this.isLoading = true;
     this.errorMessage = '';
-    console.log('Loading users...');
-    this.usersService.getAllUsers().subscribe({
+    
+    const params = new URLSearchParams();
+    if (this.filters.pais) params.append('pais', this.filters.pais);
+    if (this.filters.rol) params.append('rol', this.filters.rol);
+    if (this.filters.desde) params.append('desde', this.filters.desde);
+    if (this.filters.hasta) params.append('hasta', this.filters.hasta);
+    if (this.filters.search) params.append('search', this.filters.search);
+    
+    const queryString = params.toString();
+    const url = queryString ? `/users?${queryString}` : '/users';
+    
+    this.usersService.getUsersWithFilters(url).subscribe({
       next: (response) => {
-        console.log('Users response:', response);
         this.users = response.users || response;
-        console.log('Users loaded:', this.users);
         this.isLoading = false;
       },
       error: (error) => {
@@ -49,9 +67,45 @@ export class AdminProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  applyFilters() {
+    this.loadUsers();
+  }
+
+  clearFilters() {
+    this.filters = {
+      pais: '',
+      rol: '',
+      desde: '',
+      hasta: '',
+      search: ''
+    };
+    this.loadUsers();
+  }
+
   getRoleText(user: any): string {
-    if (user.isAdmin) return 'Administrador';
-    if (user.esVendedor) return 'Vendedor';
-    return 'Comprador';
+    return user.rol || 'Comprador';
+  }
+
+  getUniqueUsers(): number {
+    const uniqueUserIds = new Set(this.users.map(user => user.userId));
+    return uniqueUserIds.size;
+  }
+
+  getAdminCount(): number {
+    const uniqueAdmins = new Set(
+      this.users.filter(user => user.rol === 'Administrador').map(user => user.userId)
+    );
+    return uniqueAdmins.size;
+  }
+
+  getSellerCount(): number {
+    const uniqueSellers = new Set(
+      this.users.filter(user => user.rol === 'Vendedor').map(user => user.userId)
+    );
+    return uniqueSellers.size;
+  }
+
+  getActiveSessionsCount(): number {
+    return this.users.filter(user => user.sessionActive).length;
   }
 }

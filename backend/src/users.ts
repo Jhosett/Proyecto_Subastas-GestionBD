@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { User } from './models/user.model';
+import { Status } from './models/status.model';
 import bcrypt from 'bcrypt';
 
 const router = Router();
@@ -73,6 +74,44 @@ router.post('/login', async (req, res) => {
     // Update login timestamp
     user.ultimoLogin = new Date();
     await user.save();
+
+    // Create new status record for this login session
+    const rol = user.isAdmin ? 'Administrador' : (user.esVendedor ? 'Vendedor' : 'Comprador');
+    try {
+      await Status.create({
+        userId: user._id,
+        nombre: user.nombre,
+        email: user.email,
+        fechaRegistro: user.fechaRegistro,
+        loginTime: new Date(),
+        rol,
+        pais: user.pais,
+        departamento: user.departamento,
+        ciudad: user.ciudad,
+        sessionActive: true
+      });
+    } catch (statusError: any) {
+      if (statusError.code === 11000) {
+        // Drop the unique index and try again
+        try {
+          await Status.collection.dropIndex('userId_1');
+          await Status.create({
+            userId: user._id,
+            nombre: user.nombre,
+            email: user.email,
+            fechaRegistro: user.fechaRegistro,
+            loginTime: new Date(),
+            rol,
+            pais: user.pais,
+            departamento: user.departamento,
+            ciudad: user.ciudad,
+            sessionActive: true
+          });
+        } catch (retryError) {
+          console.error('Error creating status after dropping index:', retryError);
+        }
+      }
+    }
     
     const { password: _, ...userResponse } = user.toObject();
     return res.json({ user: userResponse, message: 'Login exitoso' });
@@ -102,6 +141,17 @@ router.post('/logout', async (req, res) => {
   try {
     const { userId } = req.body;
     await User.findByIdAndUpdate(userId, { ultimoLogout: new Date() });
+    
+    // Update the most recent active session
+    await Status.findOneAndUpdate(
+      { userId, sessionActive: true },
+      { 
+        logoutTime: new Date(),
+        sessionActive: false
+      },
+      { sort: { loginTime: -1 } }
+    );
+    
     return res.json({ message: 'Logout registrado' });
   } catch (error) {
     console.error('Logout error:', error);
@@ -109,10 +159,41 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-// Obtener todos los usuarios (solo para admin)
-router.get('/users', async (_, res) => {
+// Drop unique index on userId (run once)
+router.post('/drop-index', async (_, res) => {
   try {
-    const users = await User.find({}, '-password').sort({ fechaRegistro: -1 });
+    await Status.collection.dropIndex('userId_1');
+    return res.json({ message: 'Index dropped successfully' });
+  } catch (error) {
+    console.log('Index may not exist or already dropped:', error);
+    return res.json({ message: 'Index handled' });
+  }
+});
+
+// Obtener todos los usuarios (solo para admin)
+router.get('/users', async (req, res) => {
+  try {
+    const { pais, rol, desde, hasta, search } = req.query;
+
+    const filter: any = {};
+
+    if (pais) filter.pais = pais;
+    if (rol) filter.rol = rol;
+
+    if (desde || hasta) {
+      filter.loginTime = {};
+      if (desde) filter.loginTime.$gte = new Date(desde as string);
+      if (hasta) filter.loginTime.$lte = new Date(hasta as string);
+    }
+
+    if (search) {
+      filter.$or = [
+        { nombre: new RegExp(search as string, 'i') },
+        { email: new RegExp(search as string, 'i') }
+      ];
+    }
+
+    const users = await Status.find(filter).sort({ loginTime: -1 });
     return res.json({ users });
   } catch (error) {
     console.error('Get users error:', error);

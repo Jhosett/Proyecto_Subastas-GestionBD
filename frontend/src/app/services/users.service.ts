@@ -47,6 +47,10 @@ export class UsersService {
     return this.http.get(`${this.apiUrl}/users`);
   }
 
+  getUsersWithFilters(url: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}${url}`);
+  }
+
   logout(userId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/logout`, { userId });
   }

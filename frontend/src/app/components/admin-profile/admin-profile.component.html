@@ -1,65 +1,250 @@
-<div class="admin-container">
-  <div class="header">
-    <h1>Panel de Administración</h1>
-    <p>Gestión de usuarios del sistema</p>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+  <!-- Header -->
+  <div class="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+            Panel de Administración
+          </h1>
+          <p class="text-slate-600 mt-1">Gestión avanzada de usuarios y sesiones</p>
+        </div>
+        <div class="flex items-center space-x-2 text-sm text-slate-500">
+          <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span>Actualización automática</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="users-section">
-    <div class="section-header">
-      <h2>Lista de Usuarios</h2>
-      <span class="user-count">Total: {{ users.length }} usuarios</span>
+  <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 text-sm font-medium">Total Usuarios</p>
+            <p class="text-3xl font-bold text-slate-900 mt-1">{{ getUniqueUsers() }}</p>
+          </div>
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-users text-white text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 text-sm font-medium">Administradores</p>
+            <p class="text-3xl font-bold text-slate-900 mt-1">{{ getAdminCount() }}</p>
+          </div>
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-user-shield text-white text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 text-sm font-medium">Vendedores</p>
+            <p class="text-3xl font-bold text-slate-900 mt-1">{{ getSellerCount() }}</p>
+          </div>
+          <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-store text-white text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60 hover:shadow-lg transition-all duration-300">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-slate-600 text-sm font-medium">Sesiones Activas</p>
+            <p class="text-3xl font-bold text-slate-900 mt-1">{{ getActiveSessionsCount() }}</p>
+          </div>
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <i class="fas fa-circle-dot text-white text-xl"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div *ngIf="isLoading" class="loading">
-      Cargando usuarios...
+    <!-- Filters -->
+    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/60">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-slate-900">Filtros Avanzados</h3>
+        <button (click)="clearFilters()" class="text-slate-500 hover:text-slate-700 text-sm font-medium">
+          <i class="fas fa-refresh mr-2"></i>Limpiar todo
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">Buscar</label>
+          <input 
+            type="text" 
+            [(ngModel)]="filters.search" 
+            placeholder="Nombre o email..."
+            class="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">País</label>
+          <select [(ngModel)]="filters.pais" class="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+            <option value="">Todos</option>
+            <option value="Colombia">Colombia</option>
+            <option value="México">México</option>
+            <option value="Argentina">Argentina</option>
+          </select>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">Rol</label>
+          <select [(ngModel)]="filters.rol" class="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+            <option value="">Todos</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Vendedor">Vendedor</option>
+            <option value="Comprador">Comprador</option>
+          </select>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">Desde</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filters.desde" 
+            class="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">Hasta</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filters.hasta" 
+            class="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-medium text-slate-700">&nbsp;</label>
+          <button 
+            (click)="applyFilters()" 
+            class="w-full px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl">
+            <i class="fas fa-search mr-2"></i>Aplicar
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
-      <button (click)="loadUsers()" class="retry-btn">Reintentar</button>
-    </div>
+    <!-- Sessions Table -->
+    <div class="bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/60 overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200/60 bg-slate-50/50">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-slate-900">Historial de Sesiones</h3>
+          <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+            {{ users.length }} sesiones
+          </span>
+        </div>
+      </div>
 
-    <div *ngIf="!isLoading && !errorMessage && users.length === 0" class="no-users">
-      No hay usuarios registrados
-    </div>
+      <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p class="text-slate-600">Cargando sesiones...</p>
+        </div>
+      </div>
 
-    <div *ngIf="!isLoading && users.length > 0" class="table-container">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo Electrónico</th>
-            <th>Fecha de Registro</th>
-            <th>Último Login</th>
-            <th>Último Logout</th>
-            <th>Rol</th>
-            <th>País</th>
-            <th>Departamento</th>
-            <th>Ciudad</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users" class="user-row">
-            <td class="user-name">{{ user.nombre }}</td>
-            <td class="user-email">{{ user.email }}</td>
-            <td class="user-date">{{ user.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td class="user-login">{{ user.ultimoLogin ? (user.ultimoLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
-            <td class="user-logout">{{ user.ultimoLogout ? (user.ultimoLogout | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
-            <td class="user-role">
-              <span class="role-badge" [ngClass]="{
-                'admin': user.isAdmin,
-                'seller': user.esVendedor && !user.isAdmin,
-                'buyer': !user.esVendedor && !user.isAdmin
-              }">
-                {{ getRoleText(user) }}
-              </span>
-            </td>
-            <td class="user-country">{{ user.pais }}</td>
-            <td class="user-department">{{ user.departamento }}</td>
-            <td class="user-city">{{ user.ciudad }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div *ngIf="errorMessage" class="p-8 text-center">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+        <p class="text-red-600 mb-4">{{ errorMessage }}</p>
+        <button (click)="loadUsers()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+          Reintentar
+        </button>
+      </div>
+
+      <div *ngIf="!isLoading && !errorMessage && users.length === 0" class="p-16 text-center">
+        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-inbox text-slate-400 text-3xl"></i>
+        </div>
+        <h4 class="text-xl font-semibold text-slate-700 mb-2">No hay sesiones</h4>
+        <p class="text-slate-500">No se encontraron sesiones con los filtros aplicados</p>
+      </div>
+
+      <div *ngIf="!isLoading && users.length > 0" class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50/80">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Usuario</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Login</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Logout</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Rol</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Ubicación</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200/60">
+            <tr *ngFor="let user of users" class="hover:bg-slate-50/50 transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold text-sm">{{ user.nombre.charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <div>
+                    <p class="font-medium text-slate-900">{{ user.nombre }}</p>
+                    <p class="text-sm text-slate-500">{{ user.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm">
+                  <p class="font-medium text-slate-900">{{ user.loginTime | date:'dd/MM/yyyy' }}</p>
+                  <p class="text-slate-500">{{ user.loginTime | date:'HH:mm:ss' }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm" *ngIf="user.logoutTime; else noLogout">
+                  <p class="font-medium text-slate-900">{{ user.logoutTime | date:'dd/MM/yyyy' }}</p>
+                  <p class="text-slate-500">{{ user.logoutTime | date:'HH:mm:ss' }}</p>
+                </div>
+                <ng-template #noLogout>
+                  <span class="text-orange-600 font-medium text-sm">Sesión activa</span>
+                </ng-template>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': user.sessionActive,
+                        'bg-slate-100 text-slate-800': !user.sessionActive
+                      }">
+                  <div class="w-1.5 h-1.5 rounded-full mr-1.5" 
+                       [ngClass]="{
+                         'bg-green-400': user.sessionActive,
+                         'bg-slate-400': !user.sessionActive
+                       }"></div>
+                  {{ user.sessionActive ? 'Activa' : 'Cerrada' }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
+                      [ngClass]="{
+                        'bg-purple-100 text-purple-800': user.rol === 'Administrador',
+                        'bg-blue-100 text-blue-800': user.rol === 'Vendedor',
+                        'bg-emerald-100 text-emerald-800': user.rol === 'Comprador'
+                      }">
+                  {{ user.rol }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm">
+                  <p class="font-medium text-slate-900">{{ user.ciudad }}, {{ user.departamento }}</p>
+                  <p class="text-slate-500">{{ user.pais }}</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
