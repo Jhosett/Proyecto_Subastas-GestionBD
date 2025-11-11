@@ -1,5 +1,5 @@
 // home.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -10,17 +10,23 @@ import { ProductService } from '../../services/product.service';
 
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { CarruselComponent } from "../carrusel/carrusel.component";
+import { AuctionCardComponent } from '../auction-card/auction-card.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, CarruselComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, CarruselComponent, AuctionCardComponent],
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   isLoading: boolean = true;
+  
+  // Auction modal state
+  showAuctionModal: boolean = false;
+  selectedProduct: Product | null = null;
 
  
   searchTerm: string = '';
@@ -154,28 +160,48 @@ export class HomeComponent implements OnInit {
   makeBid(productId: string): void {
     const userData = localStorage.getItem('userData');
     if (!userData) {
-      this.router.navigate(['/login']);
+      Swal.fire({
+        title: '¡Inicia sesión para pujar!',
+        text: 'Necesitas tener una cuenta para participar en las subastas',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Ir al Login',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/login']);
+        }
+      });
       return;
     }
 
     const product = this.products.find(p => p._id === productId);
     if (!product) return;
 
-    const amountStr = prompt('Ingrese su oferta:');
-    if (!amountStr) return;
+    this.selectedProduct = product;
+    this.showAuctionModal = true;
+  }
 
-    const amount = Number(amountStr);
-    if (isNaN(amount) || amount <= 0) {
-      alert('Ingrese un monto válido');
-      return;
-    }
+  onCloseAuctionModal(): void {
+    this.showAuctionModal = false;
+    this.selectedProduct = null;
+  }
 
-    this.productService.bid(productId, amount).subscribe({
+  onPlaceBid(bidAmount: number): void {
+    if (!this.selectedProduct) return;
+
+    this.productService.bid(this.selectedProduct._id, bidAmount).subscribe({
       next: (updated) => {
-        alert(`Nueva puja registrada: ${updated.precioActual ?? amount}`);
+        console.log('Bid placed successfully:', updated);
         this.loadProducts();
+        this.onCloseAuctionModal();
       },
-      error: () => alert('Error al pujar')
+      error: (error) => {
+        console.error('Error placing bid:', error);
+        alert('Error al realizar la puja');
+      }
     });
   }
 

@@ -1,0 +1,118 @@
+<!-- Modal Overlay -->
+<div *ngIf="isVisible" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+  <!-- Modal Card -->
+  <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full transform animate-slideUp" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="relative p-6 pb-4">
+      <button 
+        (click)="onClose()"
+        class="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+      >
+        <i class="fas fa-times text-gray-600 text-sm"></i>
+      </button>
+      
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+          <i class="fas fa-gavel text-white text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-gray-900">Realizar Puja</h3>
+          <p class="text-sm text-gray-500">Participa en la subasta</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="px-6 pb-4" *ngIf="product">
+      <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4">
+        <div class="flex items-center gap-3">
+          <img 
+            [src]="product.imagenUrl || '/assets/noimg.png'" 
+            [alt]="product.nombre"
+            class="w-16 h-16 object-cover rounded-xl shadow-md"
+          >
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900 text-sm line-clamp-1">{{ product.nombre }}</h4>
+            <p class="text-xs text-gray-500 mt-1">{{ product.categoria }}</p>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="text-xs text-gray-600">Precio actual:</span>
+              <span class="font-bold text-green-600 text-sm">
+                {{ (product.precioActual || product.precioInicial) | currency:'USD':'symbol':'1.0-0' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bid Input Section -->
+    <div class="px-6 pb-6">
+      <div class="space-y-4">
+        <!-- Current Bid Info -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-amber-800">Puja mínima:</span>
+            <span class="font-bold text-amber-900">
+              {{ minBid | currency:'USD':'symbol':'1.0-0' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Bid Amount Input -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-700">Tu puja</label>
+          <div class="relative">
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">$</div>
+            <input 
+              type="number" 
+              [(ngModel)]="bidAmount"
+              [min]="minBid"
+              class="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-lg font-semibold"
+              placeholder="Ingresa tu puja"
+            >
+          </div>
+          
+          <!-- Quick Bid Buttons -->
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              (click)="incrementBid(10000)"
+              class="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            >
+              +$10k
+            </button>
+            <button 
+              (click)="incrementBid(50000)"
+              class="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            >
+              +$50k
+            </button>
+            <button 
+              (click)="incrementBid(100000)"
+              class="py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            >
+              +$100k
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-2">
+          <button 
+            (click)="onClose()"
+            class="flex-1 py-3 px-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button 
+            (click)="onPlaceBid()"
+            [disabled]="bidAmount < minBid"
+            class="flex-1 py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+          >
+            <i class="fas fa-gavel mr-2"></i>
+            Pujar Ahora
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

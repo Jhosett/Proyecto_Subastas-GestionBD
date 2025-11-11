@@ -154,14 +154,14 @@
     >
       <div
         *ngFor="let product of filteredProducts; trackBy: trackByProductId"
-        class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
+        class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-200 overflow-hidden border border-gray-100"
       >
         <!-- Imagen del producto -->
         <div class="relative h-56 overflow-hidden bg-gray-100">
           <img 
             [src]="product.imagenUrl || '/assets/noimg.png'" 
             [alt]="product.nombre"
-            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           />
           
           <!-- Badge de estado -->
@@ -224,7 +224,7 @@
           <div class="flex space-x-2">
             <button 
               (click)="goToDetail(product._id)"
-              class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all flex items-center justify-center"
+              class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors duration-150 flex items-center justify-center"
             >
               <i class="fa-solid fa-eye mr-2"></i>
               Ver
@@ -232,7 +232,7 @@
             <button 
               *ngIf="product.estado === 'activo'"
               (click)="makeBid(product._id)"
-              class="flex-1 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105 shadow-md flex items-center justify-center"
+              class="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors duration-150 shadow-md flex items-center justify-center"
             >
               <i class="fa-solid fa-gavel mr-2"></i>
               Pujar
@@ -281,6 +281,15 @@
     </div>
   </div>
 </div>
+
+<!-- Auction Modal -->
+<app-auction-card 
+  *ngIf="showAuctionModal && selectedProduct"
+  [product]="selectedProduct"
+  [isVisible]="showAuctionModal"
+  (close)="onCloseAuctionModal()"
+  (placeBid)="onPlaceBid($event)">
+</app-auction-card>
 
 <style>
 @keyframes fade-in {

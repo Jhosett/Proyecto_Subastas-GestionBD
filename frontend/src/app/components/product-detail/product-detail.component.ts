@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Product, ProductService } from '../../services/product.service';
 
@@ -16,7 +16,8 @@ export class ProductDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +36,10 @@ export class ProductDetailComponent implements OnInit {
 
   closeImageModal(): void {
     this.showImageModal = false;
+  }
+
+  goBack(): void {
+    this.router.navigate(['/']);
   }
 
   pujar(): void {
