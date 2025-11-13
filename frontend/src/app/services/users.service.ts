@@ -1,24 +1,25 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 // Interfaz para la respuesta esperada al iniciar sesión
 export interface LoginResponse {
   token: string;
-  userId: string; // Esencial para el registro de analíticas
+  userId: string;
+  user?: any; // Agregar el objeto user completo
   [key: string]: any; 
 }
 
-// Interfaz para los datos de registro (Añadidas ubicación para consistencia con Backend)
+// Interfaz para los datos de registro
 export interface RegisterData {
   nombre: string;
   tipoDocumento: string;
   numeroDocumento: string;
   telefono: string;
   direccion: string;
-  pais: string; // <-- AÑADIDO: Necesario para Analytics
-  departamento: string; // <-- AÑADIDO: Necesario para Analytics
-  ciudad: string; // <-- AÑADIDO: Necesario para Analytics
+  pais: string;
+  departamento: string;
+  ciudad: string;
   email: string;
   password: string;
   esVendedor?: boolean;
@@ -36,14 +37,19 @@ export interface RegisterData {
 export class UsersService {
   private apiUrl = 'http://localhost:8000/api';
 
-  // Usamos signals para manejar el estado de autenticación
-  // Inicializa con el valor en localStorage si existe
+  // Signal privado que maneja el estado del userId
   private currentUserId = signal<string | null>(this.getStoredUserId());
+
+  // Exponer como computed para que sea de solo lectura y reactivo
+  public userId = computed(() => this.currentUserId());
 
   constructor(private http: HttpClient) {
     // Escuchar cambios en el localStorage para sincronizar el signal
-    window.addEventListener('storage', () => {
-      this.currentUserId.set(this.getStoredUserId());
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'userId') {
+        this.currentUserId.set(this.getStoredUserId());
+        console.log('📡 UsersService: userId actualizado desde storage event');
+      }
     });
   }
 
@@ -51,42 +57,57 @@ export class UsersService {
     return localStorage.getItem('userId');
   }
 
-  // Getter para obtener el ID del usuario de forma reactiva
-  get userId(): string | null {
-    // Siempre revisar localStorage para mantener sincronización
-    const storedId = this.getStoredUserId();
-    if (storedId !== this.currentUserId()) {
-      this.currentUserId.set(storedId);
-    }
-    return this.currentUserId();
-  }
-  
   register(userData: RegisterData): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, userData);
   }
 
-  // Se actualiza para guardar el estado de la sesión local
+  // Login actualizado para manejar el signal correctamente
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
       tap(response => {
-        // Asumiendo que la respuesta incluye el userId
-        if (response.userId) {
+        console.log('🔐 Login response:', response);
+        
+        // Guardar token
+        if (response.token) {
           localStorage.setItem('token', response.token);
-          localStorage.setItem('userId', response.userId);
-          this.currentUserId.set(response.userId); // Actualiza el signal
+        }
+
+        // Guardar userId (prioridad: userId directo, luego user._id)
+        const userId = response.userId || response.user?._id || response.user?.id;
+        if (userId) {
+          localStorage.setItem('userId', userId.toString());
+          this.currentUserId.set(userId.toString());
+          console.log(' UsersService: userId actualizado ->', userId);
+        }
+
+        // Guardar userData completo si existe
+        if (response.user) {
+          localStorage.setItem('userData', JSON.stringify(response.user));
+          console.log(' UsersService: userData guardado');
         }
       })
     );
   }
 
-  // Se actualiza para limpiar el estado local
+  // Logout actualizado para limpiar el signal
   logout(userId: string): Observable<any> {
-    // Limpia el estado local antes de llamar a la API
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    this.currentUserId.set(null);
-    // Llama al endpoint de logout del backend (si lo tienes implementado para actualizar ultimoLogout)
-    return this.http.post(`${this.apiUrl}/logout`, { userId }); 
+    return this.http.post(`${this.apiUrl}/logout`, { userId }).pipe(
+      tap(() => {
+        // Limpiar todo el estado local
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userData');
+        this.currentUserId.set(null);
+        console.log('🚪 UsersService: Logout completado, signal limpiado');
+      })
+    );
+  }
+
+  // Método para forzar actualización del signal (útil para debugging)
+  refreshUserId(): void {
+    const storedId = this.getStoredUserId();
+    this.currentUserId.set(storedId);
+    console.log('🔄 UsersService: Signal refrescado ->', storedId);
   }
 
   updateProfile(userId: string, profileData: any): Observable<any> {

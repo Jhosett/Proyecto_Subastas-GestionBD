@@ -5,7 +5,7 @@
   
         <!-- Logo -->
         <div class="flex-shrink-0">
-          <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <a routerLink="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src="assets/auction.png" alt="Logo" class="h-8 w-8">
             <span class="font-bold text-xl text-gray-800">BidUp</span>
           </a>
@@ -13,18 +13,10 @@
   
         <!-- Categorías -->
         <nav class="hidden md:flex items-center space-x-6">
-          <a href="#" class="text-gray-600 hover:text-blue-600 flex items-center space-x-2 transition-colors">
+          <a routerLink="/" class="text-gray-600 hover:text-blue-600 flex items-center space-x-2 transition-colors">
             <i class="fa-solid fa-th-large"></i>
             <span>Categorías</span>
           </a>
-          <!-- <a href="#" class="text-gray-600 hover:text-blue-600 flex items-center space-x-2 transition-colors">
-            <i class="fa-solid fa-fire"></i>
-            <span>Populares</span>
-          </a>
-          <a href="#" class="text-gray-600 hover:text-blue-600 flex items-center space-x-2 transition-colors">
-            <i class="fa-solid fa-clock"></i>
-            <span>Terminando</span>
-          </a> -->
         </nav>
   
         <!-- Buscador -->
@@ -54,50 +46,78 @@
             <span class="hidden lg:inline">Ayuda</span>
           </a>
           
-          <!-- Not logged in -->
-          <div *ngIf="!isLoggedIn" class="flex items-center space-x-4">
-            <a routerLink="/register" class="px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 flex items-center space-x-2 transition-colors">
+          <!-- Not logged in - BOTONES DE LOGIN Y REGISTRO -->
+          <div *ngIf="!isLoggedIn()" class="flex items-center space-x-3">
+            <a 
+              routerLink="/register" 
+              class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center space-x-2 transition-all font-medium"
+            >
               <i class="fa-solid fa-user-plus"></i>
               <span>Registrarse</span>
             </a>
-            <a routerLink="/login" class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-colors">
+            <a 
+              routerLink="/login" 
+              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-all font-medium shadow-sm"
+            >
               <i class="fa-solid fa-sign-in-alt"></i>
               <span>Iniciar sesión</span>
             </a>
           </div>
 
-          <!-- Logged in -->
-          <!-- Pestaña de profile del usuario en header -->
-          <div *ngIf="isLoggedIn" class="relative">
+          <!-- Logged in - MENÚ DE USUARIO -->
+          <div *ngIf="isLoggedIn()" class="relative">
             <button 
               (click)="toggleUserMenu()" 
-              class="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-all border border-gray-200"
             >
-              <i class="fa-solid fa-user-circle text-xl"></i>
+              <!-- ✅ Icono diferente para admin -->
+              <i 
+                class="text-xl"
+                [ngClass]="{
+                  'fa-solid fa-user-shield text-purple-600': isAdmin(),
+                  'fa-solid fa-user-circle text-blue-600': !isAdmin()
+                }"
+              ></i>
               <span class="font-medium">{{ username() }}</span>
-              <i class="fa-solid fa-chevron-down text-sm"></i>
+              <i 
+                class="fa-solid fa-chevron-down text-sm transition-transform duration-200"
+                [class.rotate-180]="showUserMenu"
+              ></i>
             </button>
             
             <!-- Dropdown menu -->
-            <div *ngIf="showUserMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
-              <a routerLink="/dashboard" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                <i class="fa-solid fa-tachometer-alt"></i>
-                <span>Dashboard</span>
+            <div 
+              *ngIf="showUserMenu" 
+              class="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-xl border border-gray-200 z-50 py-1"
+            >
+              <!-- ✅ ENLACE DINÁMICO según el rol -->
+              <a 
+                [routerLink]="dashboardRoute()" 
+                (click)="showUserMenu = false" 
+                class="block px-4 py-2.5 text-gray-700 hover:bg-blue-50 transition-colors flex items-center space-x-2"
+              >
+                <i 
+                  class="text-blue-600"
+                  [ngClass]="{
+                    'fa-solid fa-user-shield': isAdmin(),
+                    'fa-solid fa-tachometer-alt': !isAdmin()
+                  }"
+                ></i>
+                <span>{{ isAdmin() ? 'Panel Admin' : 'Dashboard' }}</span>
               </a>
-              <a *ngIf="isAdmin" routerLink="/admin-profile" (click)="showUserMenu = false" class="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
-              </a>
-              <hr class="my-1">
-              <button (click)="logout()" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center space-x-2">
+              
+              <hr class="my-1 border-gray-200">
+              
+              <button 
+                (click)="logout()" 
+                class="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
+              >
                 <i class="fa-solid fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
               </button>
             </div>
           </div>
-          <!-- Cierre profile del usuario en header -->
         </div>
       </div>
     </div>
 </header>
-  

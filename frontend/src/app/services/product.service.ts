@@ -1,10 +1,8 @@
-
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
 import { UsersService } from './users.service';
-
 
 export type { Product } from '../models/product.model';
 
@@ -19,6 +17,26 @@ export class ProductService {
     private usersService: UsersService
   ) {}
 
+  // Método helper para obtener headers con autenticación
+  private getAuthHeaders(): HttpHeaders {
+    // userId es un computed signal, llamarlo como función para obtener el valor
+    const userId = this.usersService.userId() || localStorage.getItem('userId');
+    
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    // El backend solo necesita el userId en el header
+    if (userId) {
+      headers = headers.set('X-User-Id', userId);
+      console.log(' Headers enviados con userId:', userId);
+    } else {
+      console.warn(' No hay userId disponible para los headers');
+    }
+
+    return headers;
+  }
+
   //  Obtener todos los productos
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
@@ -31,40 +49,62 @@ export class ProductService {
 
   //  Crear producto (con sellerId asociado)
   createProduct(product: Product, sellerId: string): Observable<Product> {
-    const payload = { ...product, vendedorId: sellerId }; // ✅ Cambiar a vendedorId
-    return this.http.post<Product>(this.apiUrl, payload);
+    const payload = { ...product, vendedorId: sellerId };
+    const headers = this.getAuthHeaders();
+    return this.http.post<Product>(this.apiUrl, payload, { headers });
   }
 
   //  Actualizar producto
   updateProduct(id: string, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+    const headers = this.getAuthHeaders();
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, product, { headers });
   }
 
   //  Eliminar producto
   deleteProduct(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
 
-  //  Hacer puja
+  //  Hacer puja - CORREGIDO
   bid(id: string, amount: number): Observable<Product> {
-    const userId = this.usersService.userId;
+    // userId es un computed signal, llamarlo como función
+    const userId = this.usersService.userId() || localStorage.getItem('userId');
+    
     if (!userId) {
       throw new Error('Usuario no autenticado');
     }
-    return this.http.post<Product>(`${this.apiUrl}/${id}/bid`, { 
-      amount, 
-      userId 
-    });
+
+    const headers = this.getAuthHeaders();
+    
+    // Enviar userId tanto en el body como en headers para máxima compatibilidad
+    return this.http.post<Product>(
+      `${this.apiUrl}/${id}/bid`, 
+      { amount, userId },
+      { headers }
+    );
   }
 
   //  Obtener las pujas de un producto
   getBids(productId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${productId}/bids`);
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.apiUrl}/${productId}/bids`, { headers });
   }
 
   //  Asignar ganador (seller)
-  award(productId: string, sellerId: string, winnerId: string, paymentMethod?: string, paymentDetails?: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${productId}/award`, { sellerId, winnerId, paymentMethod, paymentDetails });
+  award(
+    productId: string, 
+    sellerId: string, 
+    winnerId: string, 
+    paymentMethod?: string, 
+    paymentDetails?: string
+  ): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<any>(
+      `${this.apiUrl}/${productId}/award`, 
+      { sellerId, winnerId, paymentMethod, paymentDetails },
+      { headers }
+    );
   }
 
   //  Obtener productos de un vendedor específico

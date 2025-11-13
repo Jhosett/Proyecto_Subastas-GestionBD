@@ -2,6 +2,7 @@ import { Component, OnInit, inject, computed, effect, signal } from '@angular/co
 import { RouterLink, Router } from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { UsersService } from '../../services/users.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-header',
@@ -15,12 +16,16 @@ export class HeaderComponent implements OnInit {
   private usersService = inject(UsersService);
 
   // Estado reactivo basado en el userId del servicio
-  isLoggedIn = computed(() => !!this.usersService.userId);
+  isLoggedIn = computed(() => {
+    const userId = this.usersService.userId();
+    console.log('🔍 Header - isLoggedIn:', !!userId);
+    return !!userId;
+  });
   
-  // Signals para datos del usuario (más reactivos que computed)
+  // Signals para datos del usuario
   private userDataSignal = signal<any>(null);
   
-  // Propiedades para mostrar información del usuario
+  // Propiedades computadas
   username = computed(() => {
     if (!this.isLoggedIn()) return '';
     const userData = this.userDataSignal();
@@ -33,6 +38,11 @@ export class HeaderComponent implements OnInit {
     return userData?.isAdmin || false;
   });
 
+  // ✅ NUEVO: Computed para obtener la ruta correcta del dashboard
+  dashboardRoute = computed(() => {
+    return this.isAdmin() ? '/admin-profile' : '/dashboard';
+  });
+
   showUserMenu = false;
 
   constructor() {
@@ -42,10 +52,12 @@ export class HeaderComponent implements OnInit {
         try {
           const userData = localStorage.getItem('userData');
           if (userData) {
-            this.userDataSignal.set(JSON.parse(userData));
+            const parsedData = JSON.parse(userData);
+            this.userDataSignal.set(parsedData);
+            console.log('✅ Header: Usuario cargado -', parsedData.nombre, '- Admin:', parsedData.isAdmin);
           }
         } catch (e) {
-          console.error('Error parsing userData:', e);
+          console.error('❌ Error parsing userData:', e);
           this.userDataSignal.set(null);
         }
       } else {
@@ -62,7 +74,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Ciclo de vida del componente
+    console.log('🚀 Header inicializado');
   }
 
   toggleUserMenu() {
@@ -70,30 +82,50 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    const currentUserId = this.usersService.userId;
-    
-    if (currentUserId) {
-      this.usersService.logout(currentUserId).subscribe({
-        next: () => {
-          console.log('Logout exitoso.');
-        },
-        error: (err) => {
-          console.error('Error durante el logout:', err);
-        },
-        complete: () => {
-          localStorage.removeItem('userData');
-          this.userDataSignal.set(null);
-          this.showUserMenu = false;
-          this.router.navigate(['/']);
+    Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: '¿Estás seguro de que deseas salir?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, salir',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const currentUserId = this.usersService.userId();
+        
+        if (currentUserId) {
+          this.usersService.logout(currentUserId).subscribe({
+            next: () => {
+              Swal.fire({
+                title: '¡Hasta pronto!',
+                text: 'Has cerrado sesión correctamente',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+              });
+              
+              this.userDataSignal.set(null);
+              this.showUserMenu = false;
+              this.router.navigate(['/']);
+            },
+            error: (err) => {
+              console.error('❌ Error durante el logout:', err);
+              localStorage.removeItem('userData');
+              localStorage.removeItem('userId');
+              localStorage.removeItem('token');
+              this.userDataSignal.set(null);
+              this.showUserMenu = false;
+              this.router.navigate(['/']);
+            }
+          });
         }
-      });
-    } else {
-      localStorage.removeItem('userData');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('token');
-      this.userDataSignal.set(null);
-      this.showUserMenu = false;
-      this.router.navigate(['/']);
-    }
+      }
+    });
+  }
+
+  closeMenuOnClickOutside() {
+    this.showUserMenu = false;
   }
 }
