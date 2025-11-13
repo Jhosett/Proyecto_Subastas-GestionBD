@@ -7,7 +7,7 @@ import { sendEmail } from '../utils/email';
 
 // Crear una nueva puja (subasta)
 export const createBid = async (req: Request, res: Response): Promise<void> => {
-  // Asumimos que compradorId viene del cuerpo o del token de autenticación
+  
   const { productoId, compradorId, valorPuja } = req.body; 
 
   try {

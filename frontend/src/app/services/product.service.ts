@@ -57,6 +57,16 @@ export class ProductService {
     });
   }
 
+  //  Obtener las pujas de un producto
+  getBids(productId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${productId}/bids`);
+  }
+
+  //  Asignar ganador (seller)
+  award(productId: string, sellerId: string, winnerId: string, paymentMethod?: string, paymentDetails?: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${productId}/award`, { sellerId, winnerId, paymentMethod, paymentDetails });
+  }
+
   //  Obtener productos de un vendedor específico
   getProductsBySeller(sellerId: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/seller/${sellerId}`);

@@ -209,3 +209,109 @@ export const placeBid = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: "Error al registrar la puja", details: err });
   }
 };
+
+// Listar todas las pujas de un producto
+export const getBidsForProduct = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const productoId = req.params.id;
+    const bids = await Bid.find({ productoId }).sort({ valorPuja: -1 });
+
+    // Enriquecer con datos del usuario (nombre, email)
+    const detailed = await Promise.all(bids.map(async (b) => {
+      const buyer = await User.findById(b.compradorId).select('nombre email');
+      return {
+        _id: b._id,
+        compradorId: b.compradorId,
+        nombre: buyer ? buyer.nombre : undefined,
+        email: buyer ? buyer.email : undefined,
+        valorPuja: b.valorPuja,
+        fechaPuja: b.fechaPuja
+      };
+    }));
+
+    res.json(detailed);
+  } catch (err) {
+    console.error('Error al obtener pujas del producto:', err);
+    res.status(500).json({ error: 'Error al obtener pujas' });
+  }
+};
+
+// El vendedor asigna manualmente un ganador y se notifica
+export const awardProduct = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const productoId = req.params.id;
+    const { sellerId, winnerId, paymentMethod, paymentDetails } = req.body;
+
+    const product = await Product.findById(productoId);
+    if (!product) {
+      res.status(404).json({ error: 'Producto no encontrado' });
+      return;
+    }
+
+    // Validar que quien llama sea el vendedor del producto
+    if (product.vendedorId.toString() !== sellerId) {
+      res.status(403).json({ error: 'No autorizado. Solo el vendedor puede asignar ganador.' });
+      return;
+    }
+
+    if (product.estado === 'finalizado') {
+      res.status(400).json({ error: 'La subasta ya fue finalizada' });
+      return;
+    }
+
+    // Buscar la puja del ganador para confirmar monto
+    const winningBid = await Bid.findOne({ productoId, compradorId: winnerId }).sort({ valorPuja: -1 });
+    if (!winningBid) {
+      res.status(400).json({ error: 'El usuario seleccionado no tiene una puja registrada en este producto' });
+      return;
+    }
+
+    // Actualizar producto a finalizado y guardar ganador (campo opcional)
+    await Product.findByIdAndUpdate(productoId, { estado: 'finalizado' });
+
+    // Crear notificación y correo al ganador
+    const winner = await User.findById(winnerId);
+    const seller = await User.findById(sellerId);
+
+    const saleMessage = `¡Felicidades! Has sido seleccionado como ganador de ${product.nombre} por $${winningBid.valorPuja}.`;
+    if (winner) {
+      await Notification.create({ userId: winnerId, tipo: 'subastaGanada', mensaje: saleMessage, productoId });
+      // Enviar correo con opciones de pago y detalles
+      const paymentInfoHtml = `<p>Has ganado la subasta por <strong>${product.nombre}</strong> por <strong>$${winningBid.valorPuja}</strong>.</p>
+        <p>Métodos de pago disponibles:</p>
+        <ul>
+          <li>Nequi: 3103155486</li>
+          <li>Bancolombia - Cuenta corriente: 123456789</li>
+          <li>PSE: https://www.pse.com.co (utiliza correo ${winner.email})</li>
+        </ul>
+        <p>Detalles adicionales: ${paymentDetails || 'Sin detalles'}</p>
+      `;
+      await sendEmail(winner.email, '🎉 Has ganado la subasta', saleMessage, paymentInfoHtml);
+    }
+
+    // Notificar al vendedor (confirmación de venta)
+    if (seller) {
+      const sellerMsg = `Has asignado el producto ${product.nombre} al usuario ${winner ? winner.nombre : winnerId} por $${winningBid.valorPuja}.`;
+      await Notification.create({ userId: sellerId, tipo: 'productoVendido', mensaje: sellerMsg, productoId });
+      await sendEmail(seller.email, '✅ Venta asignada', sellerMsg, `<p>${sellerMsg}</p><p>Datos de pago recibidos: ${paymentMethod || 'Indefinido'}</p>`);
+    }
+
+    // Notificar a los demás perdedores opcionalmente
+    const losersIds = await Bid.find({ productoId, compradorId: { $ne: winnerId } }).distinct('compradorId');
+    const losers = await User.find({ _id: { $in: losersIds } });
+    for (const loser of losers) {
+      const loserMsg = `La subasta de ${product.nombre} ha finalizado. No resultaste ganador.`;
+      await Notification.create({ userId: (loser as any)._id.toString(), tipo: 'subastaPerdida', mensaje: loserMsg, productoId });
+      try {
+        await sendEmail(loser.email, 'Subasta finalizada', loserMsg, `<p>${loserMsg}</p>`);
+      } catch (e) {
+        console.error('Error enviando correo a perdedor', e);
+      }
+    }
+
+    res.json({ message: 'Ganador asignado y notificaciones enviadas' });
+  } catch (err) {
+    console.error('Error en awardProduct:', err);
+    res.status(500).json({ error: 'Error al asignar ganador' });
+  }
+};

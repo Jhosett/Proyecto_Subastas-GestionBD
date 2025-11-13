@@ -55,6 +55,9 @@ export class DashboardComponent implements OnInit {
   editingProduct: Product | null = null;
 
   showOptions = false;
+  selectedProductForBidders: Product | null = null;
+  bidders: any[] = [];
+  loadingBidders: boolean = false;
 
   categorias = [
     { nombre: 'Electrónica', icon: 'fa-solid fa-mobile-screen' },
@@ -361,6 +364,128 @@ export class DashboardComponent implements OnInit {
         }, 1500);
       }
     });
+  }
+
+  loadBiddersForProduct(product: Product) {
+    this.selectedProductForBidders = product;
+    this.loadingBidders = true;
+    this.productService.getBids(product._id!).subscribe({
+      next: (data) => {
+        this.bidders = data;
+        this.loadingBidders = false;
+      },
+      error: (err) => {
+        console.error('Error loading bidders:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudieron cargar los pujadores',
+        });
+        this.loadingBidders = false;
+      },
+    });
+  }
+
+  closeBiddersPanel() {
+    this.selectedProductForBidders = null;
+    this.bidders = [];
+  }
+
+  assignWinner(bidder: any) {
+    if (!this.selectedProductForBidders || !this.userProfile) return;
+
+      const buyerName = bidder.nombre || bidder.compradorId || 'Desconocido';
+      const buyerEmail = bidder.email || '';
+
+      Swal.fire({
+        title: '¿Seleccionar ganador?',
+        html: `<p>¿Asignar la subasta a <strong>${buyerName}</strong> (${buyerEmail}) por <strong>$${bidder.valorPuja.toLocaleString()}</strong>?</p>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, asignar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Seleccionar método de pago
+        Swal.fire({
+          title: 'Selecciona método de pago',
+          input: 'select',
+          inputOptions: {
+            Nequi: 'Nequi',
+            Bancolombia: 'Bancolombia - Cuenta Corriente',
+            PSE: 'PSE - Transferencia Bancaria'
+          },
+          inputPlaceholder: 'Selecciona un método',
+          showCancelButton: true,
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#6b7280',
+        }).then((paymentResult) => {
+          if (paymentResult.isConfirmed) {
+            const paymentMethod = paymentResult.value;
+            
+            // Solicitar detalles del pago
+            Swal.fire({
+              title: 'Detalles de pago',
+              input: 'text',
+              inputPlaceholder: 'Ej: Número de cuenta o instrucciones',
+              showCancelButton: true,
+              confirmButtonColor: '#10b981',
+              cancelButtonColor: '#6b7280',
+            }).then((detailsResult) => {
+              if (detailsResult.isConfirmed) {
+                this.submitAward(bidder, paymentMethod, detailsResult.value);
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  submitAward(bidder: any, paymentMethod: string, paymentDetails: string) {
+    if (!this.selectedProductForBidders || !this.userProfile) return;
+
+    Swal.fire({
+      title: 'Asignando ganador...',
+      text: 'Por favor espera',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+            this.productService
+      .award(
+        this.selectedProductForBidders._id!,
+        this.userProfile._id,
+        bidder.compradorId || bidder._id,
+        paymentMethod,
+        paymentDetails
+      )
+      .subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: '¡Ganador asignado!',
+            text: 'Se han enviado notificaciones y correos',
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+          });
+          this.closeBiddersPanel();
+          this.loadProducts();
+        },
+        error: (err) => {
+          console.error('Error assigning winner:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo asignar el ganador',
+            confirmButtonColor: '#ef4444',
+          });
+        },
+      });
   }
 
   toggleEditPersonalInfo() {

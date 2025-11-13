@@ -13,6 +13,7 @@ export class ProductDetailComponent implements OnInit {
   
   @Input() product: Product | null = null;
   showImageModal: boolean = false;
+
   bidders: Array<any> = [];
   isSeller: boolean = false;
 
@@ -81,7 +82,8 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  assignWinner(bid: any): void {
+  // El vendedor asigna ganador
+  assignWinner(bid: any) {
     if (!this.product) return;
     const confirmMsg = `¿Asignar ganador ${bid.nombre || bid.compradorId} por $${bid.valorPuja}?`;
     if (!confirm(confirmMsg)) return;
@@ -99,12 +101,8 @@ export class ProductDetailComponent implements OnInit {
       .subscribe({
         next: (res) => {
           alert('Ganador asignado y notificaciones enviadas');
-          this.productService.getProduct(this.product!._id!).subscribe({
-            next: (p) => {
-              this.product = p;
-              this.loadBidders();
-            }
-          });
+          // refrescar producto y lista de pujadores
+          this.productService.getProduct(this.product!._id!).subscribe({ next: p => { this.product = p; this.loadBidders(); } });
         },
         error: (err) => {
           console.error('Error asignando ganador', err);

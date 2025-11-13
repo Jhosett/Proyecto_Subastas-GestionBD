@@ -188,6 +188,25 @@ img {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
+/* CTA button style */
+.cta-button {
+  background-image: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
+  color: #fff;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(59,130,246,0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.cta-button:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(59,130,246,0.2); }
+
+/* Slight glass panel for bidder drawer */
+.bidders-panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.78));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(59,130,246,0.08);
+}
+
 /* Animación de aparición suave */
 @keyframes fadeInScale {
   from {
