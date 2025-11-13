@@ -46,17 +46,25 @@ export class LoginComponent {
           console.log('Login successful:', response);
           this.isLoading = false;
           
-          // Store user data in localStorage
-          localStorage.setItem('userData', JSON.stringify(response.user));
+          // Store user data and userId in localStorage
+          if (response['user']) {
+            const user = response['user'];
+            localStorage.setItem('userData', JSON.stringify(user));
+            // Guardar userId para que UsersService lo detecte
+            const id = user._id || user.id || user.userId || null;
+            if (id) {
+              localStorage.setItem('userId', id.toString());
+            }
+          }
           
           Swal.fire({
             title: '¡Bienvenido!',
-            text: `Hola ${response.user.nombre}, has iniciado sesión correctamente.`,
+            text: `Hola ${response['user'].nombre}, has iniciado sesión correctamente.`,
             icon: 'success',
-            confirmButtonText: response.user.isAdmin ? 'Ir al Panel de Admin' : 'Ir al Dashboard',
+            confirmButtonText: response['user'].isAdmin ? 'Ir al Panel de Admin' : 'Ir al Dashboard',
             confirmButtonColor: '#3b82f6'
           }).then(() => {
-            if (response.user.isAdmin) {
+            if (response['user'].isAdmin) {
               this.router.navigate(['/admin-profile']);
             } else {
               this.router.navigate(['/dashboard']);

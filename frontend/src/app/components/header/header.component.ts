@@ -1,55 +1,68 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, computed, effect, signal } from '@angular/core';
 import { RouterLink, Router } from "@angular/router";
 import { CommonModule } from '@angular/common';
 import { UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [RouterLink, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit, OnDestroy {
-  isLoggedIn = false;
-  username = '';
-  isAdmin = false;
-  showUserMenu = false;
-  private checkInterval: any;
+export class HeaderComponent implements OnInit {
+  private router = inject(Router);
+  private usersService = inject(UsersService);
 
-  constructor(private router: Router, private usersService: UsersService) {}
+  // Estado reactivo basado en el userId del servicio
+  isLoggedIn = computed(() => !!this.usersService.userId);
+  
+  // Signals para datos del usuario (más reactivos que computed)
+  private userDataSignal = signal<any>(null);
+  
+  // Propiedades para mostrar información del usuario
+  username = computed(() => {
+    if (!this.isLoggedIn()) return '';
+    const userData = this.userDataSignal();
+    return userData?.nombre || 'Usuario';
+  });
+
+  isAdmin = computed(() => {
+    if (!this.isLoggedIn()) return false;
+    const userData = this.userDataSignal();
+    return userData?.isAdmin || false;
+  });
+
+  showUserMenu = false;
+
+  constructor() {
+    // Effect para sincronizar datos del usuario desde localStorage
+    effect(() => {
+      if (this.isLoggedIn()) {
+        try {
+          const userData = localStorage.getItem('userData');
+          if (userData) {
+            this.userDataSignal.set(JSON.parse(userData));
+          }
+        } catch (e) {
+          console.error('Error parsing userData:', e);
+          this.userDataSignal.set(null);
+        }
+      } else {
+        this.userDataSignal.set(null);
+      }
+    });
+
+    // Effect para resetear el menú cuando el usuario se desloguea
+    effect(() => {
+      if (!this.isLoggedIn()) {
+        this.showUserMenu = false;
+      }
+    });
+  }
 
   ngOnInit() {
-    this.checkLoginStatus();
-    // Check login status every second
-    this.checkInterval = setInterval(() => {
-      this.checkLoginStatus();
-    }, 1000);
-    
-    // Also check when window gains focus
-    window.addEventListener('focus', () => this.checkLoginStatus());
-  }
-
-  ngOnDestroy() {
-    if (this.checkInterval) {
-      clearInterval(this.checkInterval);
-    }
-  }
-
-  checkLoginStatus() {
-    const userData = localStorage.getItem('userData');
-    const wasLoggedIn = this.isLoggedIn;
-    
-    if (userData) {
-      const user = JSON.parse(userData);
-      this.isLoggedIn = true;
-      this.username = user.nombre || user.username;
-      this.isAdmin = user.isAdmin || false;
-    } else {
-      this.isLoggedIn = false;
-      this.username = '';
-      this.isAdmin = false;
-      this.showUserMenu = false;
-    }
+    // Ciclo de vida del componente
   }
 
   toggleUserMenu() {
@@ -57,17 +70,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const user = JSON.parse(userData);
-      this.usersService.logout(user._id).subscribe();
-    }
+    const currentUserId = this.usersService.userId;
     
-    localStorage.removeItem('userData');
-    this.isLoggedIn = false;
-    this.username = '';
-    this.isAdmin = false;
-    this.showUserMenu = false;
-    this.router.navigate(['/']);
+    if (currentUserId) {
+      this.usersService.logout(currentUserId).subscribe({
+        next: () => {
+          console.log('Logout exitoso.');
+        },
+        error: (err) => {
+          console.error('Error durante el logout:', err);
+        },
+        complete: () => {
+          localStorage.removeItem('userData');
+          this.userDataSignal.set(null);
+          this.showUserMenu = false;
+          this.router.navigate(['/']);
+        }
+      });
+    } else {
+      localStorage.removeItem('userData');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('token');
+      this.userDataSignal.set(null);
+      this.showUserMenu = false;
+      this.router.navigate(['/']);
+    }
   }
 }

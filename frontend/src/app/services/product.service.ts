@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../models/product.model';
+import { UsersService } from './users.service';
 
 
 export type { Product } from '../models/product.model';
@@ -13,7 +14,10 @@ export type { Product } from '../models/product.model';
 export class ProductService {
   private apiUrl = 'http://localhost:8000/api/products'; 
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private usersService: UsersService
+  ) {}
 
   //  Obtener todos los productos
   getProducts(): Observable<Product[]> {
@@ -43,7 +47,14 @@ export class ProductService {
 
   //  Hacer puja
   bid(id: string, amount: number): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/${id}/bid`, { amount });
+    const userId = this.usersService.userId;
+    if (!userId) {
+      throw new Error('Usuario no autenticado');
+    }
+    return this.http.post<Product>(`${this.apiUrl}/${id}/bid`, { 
+      amount, 
+      userId 
+    });
   }
 
   //  Obtener productos de un vendedor específico

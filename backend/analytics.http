@@ -1,0 +1,199 @@
+@baseUrl = http://localhost:8000/api/analytics
+
+### 1. Registrar Entrada (Inicio de Sesión)
+# POST /api/analytics/entry
+# Devuelve: { sessionId: "..." }
+POST {{baseUrl}}/entry
+Content-Type: application/json
+
+{
+  "userId": "507f1f77bcf86cd79943900d"
+}
+
+### Guardar sessionId para próximas pruebas (ver respuesta)
+@sessionId = 507f1f77bcf86cd799439011
+
+---
+
+### 2. Registrar Clic en Categoría
+# POST /api/analytics/click
+# Parámetros: sessionId, categoryName
+POST {{baseUrl}}/click
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}",
+  "categoryName": "Electrónica"
+}
+
+---
+
+### 3. Registrar Otro Clic (Diferente Categoría)
+POST {{baseUrl}}/click
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}",
+  "categoryName": "Deportes"
+}
+
+---
+
+### 4. Registrar Intento de Subasta
+# POST /api/analytics/attempt
+POST {{baseUrl}}/attempt
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}"
+}
+
+---
+
+### 5. Registrar Salida (Fin de Sesión)
+# POST /api/analytics/exit
+# Calcula automáticamente: tiempoTotalEnPagina
+POST {{baseUrl}}/exit
+Content-Type: application/json
+
+{
+  "sessionId": "{{sessionId}}"
+}
+
+---
+
+### 6. Obtener Reporte General
+# GET /api/analytics/report
+# Incluye: estadísticas, top categorías, distribución geográfica
+GET {{baseUrl}}/report
+
+---
+
+### 7. Obtener Reporte con Filtro de Fechas
+# GET /api/analytics/report?startDate=...&endDate=...
+GET {{baseUrl}}/report?startDate=2025-11-01&endDate=2025-11-30
+
+---
+
+### 8. Obtener Reporte por Usuario Específico
+# GET /api/analytics/user/:userId
+GET {{baseUrl}}/user/507f1f77bcf86cd79943900d
+
+---
+
+### 9. Prueba Completa: Flujo de Usuario
+
+# Paso 1: Inicio de sesión
+POST {{baseUrl}}/entry
+Content-Type: application/json
+
+{
+  "userId": "user_test_001"
+}
+
+###
+
+# Paso 2: Hacer clic en categoría (Guardar sessionId de respuesta anterior)
+POST {{baseUrl}}/click
+Content-Type: application/json
+
+{
+  "sessionId": "ID_DE_RESPUESTA_ANTERIOR",
+  "categoryName": "Joyería"
+}
+
+###
+
+# Paso 3: Hacer clic en otra categoría
+POST {{baseUrl}}/click
+Content-Type: application/json
+
+{
+  "sessionId": "ID_DE_RESPUESTA_ANTERIOR",
+  "categoryName": "Libros"
+}
+
+###
+
+# Paso 4: Intentar subastar
+POST {{baseUrl}}/attempt
+Content-Type: application/json
+
+{
+  "sessionId": "ID_DE_RESPUESTA_ANTERIOR"
+}
+
+###
+
+# Paso 5: Cerrar sesión
+POST {{baseUrl}}/exit
+Content-Type: application/json
+
+{
+  "sessionId": "ID_DE_RESPUESTA_ANTERIOR"
+}
+
+###
+
+# Paso 6: Ver reporte
+GET {{baseUrl}}/report
+
+---
+
+### Notas Importantes
+
+# 1. Reemplazar "@sessionId" con el valor real de la respuesta de /entry
+# 2. El campo "userId" debe ser un ObjectId válido de un usuario existente
+# 3. El campo "sessionId" debe ser un ObjectId válido de una sesión existente
+# 4. Las fechas en queryParams deben estar en formato ISO 8601
+# 5. El tiempo se devuelve en segundos
+
+---
+
+### Respuestas Esperadas
+
+# POST /entry (201 Created)
+# {
+#   "sessionId": "507f191e810c19729de860ea"
+# }
+
+# POST /click (200 OK)
+# {
+#   "message": "Click registrado correctamente"
+# }
+
+# POST /attempt (200 OK)
+# {
+#   "message": "Intento de subasta registrado"
+# }
+
+# POST /exit (200 OK)
+# {
+#   "message": "Salida registrada correctamente",
+#   "timeSpent": 3600
+# }
+
+# GET /report (200 OK)
+# {
+#   "message": "Reporte de analíticas generado correctamente",
+#   "totalSessions": 42,
+#   "statistics": {
+#     "totalUsers": 15,
+#     "avgTimePerPage": 1842,
+#     "usersAttemptedAuction": 28,
+#     "percentageAttemptedAuction": 66.7,
+#     "topCategories": [...],
+#     "locationDistribution": [...]
+#   }
+# }
+
+# GET /user/:userId (200 OK)
+# {
+#   "userId": "user_123",
+#   "totalSessions": 5,
+#   "totalTimeSpent": 18200,
+#   "averageTimePerSession": 3640,
+#   "categoriesExplored": [...],
+#   "attemptedAuction": true,
+#   "sessions": [...]
+# }

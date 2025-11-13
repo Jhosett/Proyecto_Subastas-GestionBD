@@ -5,6 +5,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  placeBid,
 } from "../controllers/product.controller";
 import { getProductsBySeller } from "../controllers/product.controller";
 
@@ -15,7 +16,8 @@ router.get("/", getProducts);
 router.get("/:id", getProductById); 
 router.post("/", createProduct);     
 router.put("/:id", updateProduct);  
-router.delete("/:id", deleteProduct); 
+router.delete("/:id", deleteProduct);
+router.post("/:id/bid", placeBid);
 
 router.get("/seller/:sellerId", getProductsBySeller); 
 

@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./db";
 import productRoutes from "./routes/products.router";
-import userRoutes from "./users"; 
+import userRoutes from "./users";
+import analyticsRoutes from "./routes/analytics.router";
 
 dotenv.config();
 
@@ -17,7 +18,8 @@ connectDB();
 
 // Rutas
 app.use("/api/products", productRoutes);
-app.use("/api", userRoutes); 
+app.use("/api", userRoutes);
+app.use("/api/analytics", analyticsRoutes); 
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
