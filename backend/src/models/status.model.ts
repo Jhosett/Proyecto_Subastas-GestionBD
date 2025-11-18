@@ -14,6 +14,8 @@ export interface Status extends Document {
   departamento: string;
   ciudad: string;
   sessionActive: boolean;
+  clickedCategories: string[];
+  bidAttempts: number;
 }
 
 // Esquema de Mongoose para el modelo Status
@@ -60,6 +62,14 @@ const statusSchema = new Schema<Status>({
   sessionActive: {
     type: Boolean,
     default: true
+  },
+  clickedCategories: {
+    type: [String],
+    default: []
+  },
+  bidAttempts: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

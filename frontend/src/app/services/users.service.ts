@@ -125,4 +125,12 @@ export class UsersService {
   getUsersWithFilters(url: string): Observable<any> {
     return this.http.get(`${this.apiUrl}${url}`);
   }
+
+  trackAction(userId: string, category: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/track-action`, { userId, category });
+  }
+
+  trackBid(userId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/track-bid`, { userId });
+  }
 }

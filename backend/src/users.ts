@@ -201,6 +201,42 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Track user actions
+router.post('/track-action', async (req, res) => {
+  try {
+    const { userId, category } = req.body;
+    
+    await Status.findOneAndUpdate(
+      { userId, sessionActive: true },
+      { $addToSet: { clickedCategories: category } },
+      { sort: { loginTime: -1 } }
+    );
+    
+    return res.json({ message: 'Action tracked' });
+  } catch (error) {
+    console.error('Track action error:', error);
+    return res.status(500).json({ error: 'Error tracking action' });
+  }
+});
+
+// Track bid attempts
+router.post('/track-bid', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    await Status.findOneAndUpdate(
+      { userId, sessionActive: true },
+      { $inc: { bidAttempts: 1 } },
+      { sort: { loginTime: -1 } }
+    );
+    
+    return res.json({ message: 'Bid tracked' });
+  } catch (error) {
+    console.error('Track bid error:', error);
+    return res.status(500).json({ error: 'Error tracking bid' });
+  }
+});
+
 // Actualizar usuario
 router.put('/users/:id', async (req, res) => {
   try {

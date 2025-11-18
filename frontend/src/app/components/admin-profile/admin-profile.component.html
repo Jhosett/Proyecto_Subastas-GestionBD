@@ -178,6 +178,9 @@
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Usuario</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Login</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Logout</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Tiempo Activo</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Categorías Visitadas</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Pujas Intentadas</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Estado</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Rol</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Ubicación</th>
@@ -210,6 +213,15 @@
                 <ng-template #noLogout>
                   <span class="text-orange-600 font-medium text-sm">Sesión activa</span>
                 </ng-template>
+              </td>
+              <td class="px-6 py-4">
+                <span class="font-medium text-slate-900">{{ getActiveTime(user) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="text-sm text-slate-700">{{ getClickedCategories(user) }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="font-medium text-slate-900">{{ getBidAttempts(user) }}</span>
               </td>
               <td class="px-6 py-4">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 

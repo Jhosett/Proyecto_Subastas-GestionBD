@@ -108,4 +108,31 @@ export class AdminProfileComponent implements OnInit, OnDestroy {
   getActiveSessionsCount(): number {
     return this.users.filter(user => user.sessionActive).length;
   }
+
+  getActiveTime(user: any): string {
+    if (!user.loginTime) return 'N/A';
+    
+    const loginTime = new Date(user.loginTime);
+    const logoutTime = user.logoutTime ? new Date(user.logoutTime) : new Date();
+    
+    const diffMs = logoutTime.getTime() - loginTime.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes}m`;
+    }
+    return `${diffMinutes}m`;
+  }
+
+  getClickedCategories(user: any): string {
+    if (!user.clickedCategories || user.clickedCategories.length === 0) {
+      return 'Ninguna';
+    }
+    return user.clickedCategories.join(', ');
+  }
+
+  getBidAttempts(user: any): string {
+    return (user.bidAttempts || 0).toString();
+  }
 }

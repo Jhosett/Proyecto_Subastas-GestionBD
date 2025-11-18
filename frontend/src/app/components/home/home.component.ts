@@ -101,12 +101,12 @@ export class HomeComponent implements OnInit {
   }
 
   filterByCategory(category: string): void {
-    // Lógica de Analíticas
-    if (this.mainLayout && category !== this.selectedCategory) {
-      this.mainLayout.registerCategoryClick(category);
+    // Track category click
+    const userId = this.usersService.userId();
+    if (userId && category !== this.selectedCategory) {
+      this.usersService.trackAction(userId, category).subscribe();
     }
 
-    // Lógica de Negocio: Aplicar filtro
     this.selectedCategory = this.selectedCategory === category ? '' : category;
     this.applyFilters();
   }
@@ -185,7 +185,14 @@ export class HomeComponent implements OnInit {
   }
 
   // Navegación
-  goToDetail(productId: string): void { 
+  goToDetail(productId: string): void {
+    // Track product click
+    const userId = this.usersService.userId();
+    const product = this.products.find(p => p._id === productId);
+    if (userId && product) {
+      this.usersService.trackAction(userId, product.categoria).subscribe();
+    }
+    
     this.router.navigate(['/products', productId]); 
   }
 
@@ -213,6 +220,18 @@ export class HomeComponent implements OnInit {
     const product = this.products.find(p => p._id === productId);
     if (!product) return;
 
+    // Check if user is the seller of this product
+    const currentUser = JSON.parse(userData);
+    if (product.vendedorId === currentUser._id) {
+      Swal.fire({
+        title: 'No puedes pujar',
+        text: 'No puedes pujar en tus propios productos',
+        icon: 'warning',
+        confirmButtonColor: '#3b82f6'
+      });
+      return;
+    }
+
     this.selectedProduct = product;
     this.showAuctionModal = true;
   }
@@ -225,16 +244,8 @@ export class HomeComponent implements OnInit {
   onPlaceBid(bidAmount: number): void {
     if (!this.selectedProduct) return;
 
-    // ✅ CORREGIDO: userId es un computed signal, se llama como función
     const userId = this.usersService.userId();
     
-    // Debug logs (puedes eliminarlos después)
-    console.log('🔍 Verificando autenticación:');
-    console.log('  - userId del service:', userId);
-    console.log('  - userId del localStorage:', localStorage.getItem('userId'));
-    console.log('  - token:', localStorage.getItem('token'));
-
-    // Validar que el usuario esté autenticado
     if (!userId) {
       Swal.fire({
         title: 'Autenticación requerida',
@@ -246,10 +257,9 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    // LÓGICA DE ANALÍTICAS: Registrar el intento de subastar
-    this.mainLayout?.registerIntentoSubastar();
+    // Track bid attempt
+    this.usersService.trackBid(userId).subscribe();
     
-    // Mostrar loading mientras se procesa la puja
     Swal.fire({
       title: 'Procesando puja...',
       text: 'Por favor espera',
@@ -300,5 +310,12 @@ export class HomeComponent implements OnInit {
 
   trackByProductId(index: number, product: Product): string { 
     return product._id; 
+  }
+
+  isOwnProduct(product: Product): boolean {
+    const userData = localStorage.getItem('userData');
+    if (!userData) return false;
+    const currentUser = JSON.parse(userData);
+    return product.vendedorId === currentUser._id;
   }
 }

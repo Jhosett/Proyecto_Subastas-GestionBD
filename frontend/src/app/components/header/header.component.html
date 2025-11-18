@@ -23,7 +23,7 @@
         <div class="flex-1 px-4 max-w-lg hidden md:flex">
           <div class="relative w-full">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fa-solid fa-search text-gray-400"></i>
+              <i class="fas fa-search text-gray-400"></i>
             </div>
             <input
               type="text"
@@ -34,7 +34,7 @@
           <button
             class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors flex items-center space-x-1"
           >
-            <i class="fa-solid fa-search"></i>
+            <i class="fas fa-search"></i>
             <span class="hidden lg:inline">Buscar</span>
           </button>
         </div>
@@ -42,7 +42,7 @@
         <!-- Ayuda + Auth -->
         <div class="flex items-center space-x-4">
           <a href="#" class="text-gray-600 hover:text-blue-600 flex items-center space-x-1 transition-colors">
-            <i class="fa-solid fa-question-circle"></i>
+            <i class="fas fa-question-circle"></i>
             <span class="hidden lg:inline">Ayuda</span>
           </a>
           
@@ -52,14 +52,14 @@
               routerLink="/register" 
               class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center space-x-2 transition-all font-medium"
             >
-              <i class="fa-solid fa-user-plus"></i>
+              <i class="fas fa-user-plus"></i>
               <span>Registrarse</span>
             </a>
             <a 
               routerLink="/login" 
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2 transition-all font-medium shadow-sm"
             >
-              <i class="fa-solid fa-sign-in-alt"></i>
+              <i class="fas fa-sign-in-alt"></i>
               <span>Iniciar sesión</span>
             </a>
           </div>
@@ -74,13 +74,13 @@
               <i 
                 class="text-xl"
                 [ngClass]="{
-                  'fa-solid fa-user-shield text-purple-600': isAdmin(),
-                  'fa-solid fa-user-circle text-blue-600': !isAdmin()
+                  'fas fa-user-shield text-purple-600': isAdmin(),
+                  'fas fa-user-circle text-blue-600': !isAdmin()
                 }"
               ></i>
               <span class="font-medium">{{ username() }}</span>
               <i 
-                class="fa-solid fa-chevron-down text-sm transition-transform duration-200"
+                class="fas fa-chevron-down text-sm transition-transform duration-200"
                 [class.rotate-180]="showUserMenu"
               ></i>
             </button>
@@ -99,8 +99,8 @@
                 <i 
                   class="text-blue-600"
                   [ngClass]="{
-                    'fa-solid fa-user-shield': isAdmin(),
-                    'fa-solid fa-tachometer-alt': !isAdmin()
+                    'fas fa-user-shield': isAdmin(),
+                    'fas fa-tachometer-alt': !isAdmin()
                   }"
                 ></i>
                 <span>{{ isAdmin() ? 'Panel Admin' : 'Dashboard' }}</span>
@@ -112,7 +112,7 @@
                 (click)="logout()" 
                 class="w-full text-left px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
               >
-                <i class="fa-solid fa-sign-out-alt"></i>
+                <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
               </button>
             </div>

@@ -26,6 +26,8 @@ interface UserProfile {
     nit: string;
   };
   fechaRegistro: string;
+  ultimoLogin?: string;
+  ultimoLogout?: string;
 }
 
 @Component({
@@ -72,6 +74,11 @@ export class DashboardComponent implements OnInit {
   selectCategoria(cat: any) {
     this.newProduct.categoria = cat.nombre;
     this.showOptions = false;
+  }
+
+  toggleOptions(event: Event) {
+    event.stopPropagation();
+    this.showOptions = !this.showOptions;
   }
 
   constructor(
@@ -313,7 +320,7 @@ export class DashboardComponent implements OnInit {
     this.newProduct = {
       nombre: '',
       descripcion: '',
-      precioInicial: 0,
+      precioInicial: undefined,
       precioActual: 0,
       categoria: '',
       vendedorId: this.userProfile?._id || '',
@@ -622,5 +629,21 @@ export class DashboardComponent implements OnInit {
           });
         },
       });
+  }
+
+  getActiveTime(): string {
+    if (!this.userProfile?.ultimoLogin) return 'No disponible';
+    
+    const loginTime = new Date(this.userProfile.ultimoLogin);
+    const logoutTime = this.userProfile.ultimoLogout ? new Date(this.userProfile.ultimoLogout) : new Date();
+    
+    const diffMs = logoutTime.getTime() - loginTime.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes}m`;
+    }
+    return `${diffMinutes}m`;
   }
 }

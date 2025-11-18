@@ -354,6 +354,14 @@
                   {{ userProfile._id }}
                 </p>
               </div>
+              <div>
+                <label class="text-sm font-semibold text-gray-600 mb-1 block"
+                  >Tiempo Activo</label
+                >
+                <p class="text-gray-800 font-medium">
+                  {{ getActiveTime() }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -471,9 +479,9 @@
                     [(ngModel)]="newProduct.precioInicial"
                     name="precioInicial"
                     required
-                    min="0"
+                    min="1"
                     step="1000"
-                    placeholder="0"
+                    placeholder="Ingresa el precio inicial"
                     class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   />
                 </div>
@@ -483,7 +491,7 @@
                     <i class="fa-solid fa-layer-group mr-2 text-purple-600"></i>
                     Categoría *
                   </label>
-                  <div class="relative" (click)="showOptions = !showOptions">
+                  <div class="relative" (click)="toggleOptions($event)">
                     <div
                       class="flex items-center justify-between w-full px-4 py-3 border-2 border-gray-300 rounded-xl cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     >
@@ -588,249 +596,106 @@
               </p>
             </div>
 
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <!-- Panel de pujadores (lado derecho) -->
-              <div
-                *ngIf="selectedProductForBidders"
-                class="sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl sticky top-0"
-              >
+            <!-- Panel de pujadores (si está activo) -->
+            <div *ngIf="selectedProductForBidders" class="mb-6">
+              <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-300 shadow-xl">
                 <div class="flex items-center justify-between mb-4">
                   <h5 class="font-bold text-lg text-gray-800 flex items-center">
                     <i class="fa-solid fa-gavel mr-2 text-blue-600"></i>
-                    Pujadores
+                    Pujadores - {{ selectedProductForBidders.nombre }}
                   </h5>
-                  <button
-                    (click)="closeBiddersPanel()"
-                    class="text-gray-500 hover:text-gray-700 text-xl"
-                  >
+                  <button (click)="closeBiddersPanel()" class="text-gray-500 hover:text-gray-700 text-xl">
                     <i class="fa-solid fa-times"></i>
                   </button>
                 </div>
 
-                <div class="mb-4 pb-4 border-b border-blue-200">
-                  <p class="text-sm text-gray-600 font-semibold">{{
-                    selectedProductForBidders.nombre
-                  }}</p>
-                  <p class="text-xs text-gray-500 mt-1">
-                    Estado:
-                    <span
-                      [ngClass]="{
-                        'text-green-600': selectedProductForBidders.estado === 'activo',
-                        'text-red-600': selectedProductForBidders.estado === 'finalizado'
-                      }"
-                      class="font-bold"
-                    >
-                      {{
-                        selectedProductForBidders.estado === "activo"
-                          ? "En Subasta"
-                          : "Finalizado"
-                      }}
-                    </span>
-                  </p>
-                </div>
-
                 <div *ngIf="loadingBidders" class="text-center py-8">
-                  <div
-                    class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600 mx-auto"
-                  ></div>
+                  <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
                   <p class="text-gray-600 text-sm mt-2">Cargando pujadores...</p>
                 </div>
 
-                <div
-                  *ngIf="!loadingBidders && bidders.length === 0"
-                  class="text-center py-8"
-                >
-                  <i
-                    class="fa-solid fa-inbox text-4xl text-gray-300 mb-2"
-                  ></i>
-                  <p class="text-gray-500 text-sm">
-                    No hay pujadores aún en este producto
-                  </p>
+                <div *ngIf="!loadingBidders && bidders.length === 0" class="text-center py-8">
+                  <i class="fa-solid fa-inbox text-4xl text-gray-300 mb-2"></i>
+                  <p class="text-gray-500 text-sm">No hay pujadores aún en este producto</p>
                 </div>
 
-                <div
-                  *ngIf="!loadingBidders && bidders.length > 0"
-                  class="space-y-2 max-h-96 overflow-y-auto"
-                >
-                  <div
-                    *ngFor="let bid of bidders"
-                    class="bg-white rounded-lg p-3 border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all"
-                  >
+                <div *ngIf="!loadingBidders && bidders.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div *ngFor="let bid of bidders" class="bg-white rounded-lg p-4 border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all">
                     <div class="flex items-start justify-between mb-2">
                       <div class="flex-1">
-                        <p class="font-semibold text-sm text-gray-800">
-                          {{ bid.nombre || (bid.compradorId) }}
-                        </p>
-                        <p class="text-xs text-gray-500 truncate">
-                          {{ bid.email || '' }}
-                        </p>
+                        <p class="font-semibold text-sm text-gray-800">{{ bid.nombre || bid.compradorId }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ bid.email || '' }}</p>
                       </div>
                     </div>
                     <div class="flex items-center justify-between">
-                      <span class="text-lg font-bold text-green-600">
-                        {{ bid.valorPuja | currency : 'USD' : 'symbol' : '1.0-0' }}
-                      </span>
-                      <button
-                        (click)="assignWinner(bid)"
-                        [disabled]="selectedProductForBidders.estado === 'finalizado'"
-                        class="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-                      >
-                        <i class="fa-solid fa-crown mr-1"></i>
-                        Asignar
+                      <span class="text-lg font-bold text-green-600">{{ bid.valorPuja | currency : 'USD' : 'symbol' : '1.0-0' }}</span>
+                      <button (click)="assignWinner(bid)" [disabled]="selectedProductForBidders.estado === 'finalizado'" class="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all">
+                        <i class="fa-solid fa-crown mr-1"></i>Asignar
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Producto en edición -->
-              <div
-                *ngIf="editingProduct"
-                class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-2xl p-6 shadow-xl"
-              >
-                <h5
-                  class="font-bold text-xl mb-4 text-yellow-800 flex items-center"
-                >
-                  <i class="fa-solid fa-edit mr-2"></i>
-                  Editando Producto
+            <!-- Producto en edición -->
+            <div *ngIf="editingProduct" class="mb-6">
+              <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-2xl p-6 shadow-xl">
+                <h5 class="font-bold text-xl mb-4 text-yellow-800 flex items-center">
+                  <i class="fa-solid fa-edit mr-2"></i>Editando Producto
                 </h5>
-
-                <div class="space-y-3">
-                  <input
-                    type="text"
-                    [(ngModel)]="editingProduct.nombre"
-                    name="editNombre"
-                    placeholder="Nombre"
-                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                  />
-                  <textarea
-                    [(ngModel)]="editingProduct.descripcion"
-                    name="editDescripcion"
-                    rows="3"
-                    placeholder="Descripción"
-                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 resize-none"
-                  ></textarea>
-                  <input
-                    type="number"
-                    [(ngModel)]="editingProduct.precioInicial"
-                    name="editPrecio"
-                    placeholder="Precio"
-                    class="w-full px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
-                  />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input type="text" [(ngModel)]="editingProduct.nombre" name="editNombre" placeholder="Nombre" class="px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500" />
+                  <input type="number" [(ngModel)]="editingProduct.precioInicial" name="editPrecio" placeholder="Precio" class="px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500" />
+                  <textarea [(ngModel)]="editingProduct.descripcion" name="editDescripcion" rows="3" placeholder="Descripción" class="md:col-span-2 px-3 py-2 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 resize-none"></textarea>
                 </div>
-
                 <div class="flex gap-2 mt-4">
-                  <button
-                    (click)="updateProduct()"
-                    type="button"
-                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center"
-                  >
-                    <i class="fa-solid fa-save mr-1"></i>
-                    Guardar
+                  <button (click)="updateProduct()" type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center">
+                    <i class="fa-solid fa-save mr-1"></i>Guardar
                   </button>
-                  <button
-                    (click)="cancelEdit()"
-                    type="button"
-                    class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-bold"
-                  >
+                  <button (click)="cancelEdit()" type="button" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-bold">
                     Cancelar
                   </button>
                 </div>
               </div>
+            </div>
 
-              <!-- Lista normal de productos -->
-              <div
-                *ngFor="let p of products"
-                [class]="{
-                  'sm:col-span-2 lg:col-span-2': selectedProductForBidders,
-                  'lg:col-span-3': !selectedProductForBidders
-                }"
-                class="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 transform hover:-translate-y-2 hover:shadow-custom-lg"
-              >
-                <div
-                  class="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden group"
-                >
-                  <img
-                    [src]="p.imagenUrl || '/assets/noimg.png'"
-                    [alt]="p.nombre"
-                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div
-                    class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  ></div>
-                  <span
-                    class="absolute top-3 right-3 px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg backdrop-blur-sm"
-                    [ngClass]="{
-                      'bg-green-500': p.estado === 'activo',
-                      'bg-red-500': p.estado === 'finalizado'
-                    }"
-                  >
-                    <i
-                      class="fa-solid mr-1"
-                      [ngClass]="
-                        p.estado === 'activo'
-                          ? 'fa-circle-dot'
-                          : 'fa-check-circle'
-                      "
-                    ></i>
-                    {{ p.estado === "activo" ? "En Subasta" : "Finalizado" }}
+            <!-- Lista de productos -->
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div *ngFor="let p of products" class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div class="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                  <img [src]="p.imagenUrl || '/assets/noimg.png'" [alt]="p.nombre" class="w-full h-full object-cover" />
+                  <span class="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-bold text-white shadow-lg" [ngClass]="{'bg-green-500': p.estado === 'activo', 'bg-red-500': p.estado === 'finalizado'}">
+                    <i class="fa-solid mr-1" [ngClass]="p.estado === 'activo' ? 'fa-circle-dot' : 'fa-check-circle'"></i>
+                    {{ p.estado === "activo" ? "Activo" : "Finalizado" }}
                   </span>
                 </div>
 
-                <div class="p-6">
-                  <h5 class="font-bold text-xl text-gray-800 mb-2 line-clamp-1">
-                    {{ p.nombre }}
-                  </h5>
-                  <p
-                    class="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed"
-                  >
-                    {{ p.descripcion }}
-                  </p>
-
-                  <div class="space-y-3 mb-4">
-                    <div
-                      class="flex items-center justify-between bg-green-50 rounded-lg p-3"
-                    >
-                      <span class="text-xs text-gray-600 font-semibold"
-                        >Precio inicial:</span
-                      >
-                      <span class="text-xl font-bold text-green-600">{{
-                        p.precioInicial | currency : "USD" : "symbol" : "1.0-0"
-                      }}</span>
+                <div class="p-4">
+                  <h5 class="font-bold text-lg text-gray-800 mb-2 truncate">{{ p.nombre }}</h5>
+                  <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ p.descripcion }}</p>
+                  
+                  <div class="mb-4">
+                    <div class="flex items-center justify-between bg-green-50 rounded-lg p-2 mb-2">
+                      <span class="text-xs text-gray-600 font-semibold">Precio inicial:</span>
+                      <span class="text-lg font-bold text-green-600">{{ p.precioInicial | currency : "USD" : "symbol" : "1.0-0" }}</span>
                     </div>
-                    <div
-                      class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-2"
-                    >
-                      <i
-                        class="fa-solid fa-layer-group mr-2 text-purple-600"
-                      ></i>
+                    <div class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-2">
+                      <i class="fa-solid fa-layer-group mr-2 text-purple-600"></i>
                       <span class="font-medium">{{ p.categoria }}</span>
                     </div>
                   </div>
 
-                  <div class="flex flex-col gap-2">
-                    <button
-                      (click)="loadBiddersForProduct(p)"
-                      [disabled]="p.estado === 'finalizado'"
-                      class="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 font-bold flex items-center justify-center shadow-md ring-1 ring-purple-100 focus:outline-none focus:ring-4 focus:ring-purple-200"
-                    >
-                      <i class="fa-solid fa-users mr-1"></i>
-                      Ver Pujadores
+                  <div class="space-y-2">
+                    <button (click)="loadBiddersForProduct(p)" [disabled]="p.estado === 'finalizado'" class="w-full px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all font-bold flex items-center justify-center">
+                      <i class="fa-solid fa-users mr-1"></i>Ver Pujadores
                     </button>
                     <div class="flex gap-2">
-                      <button
-                        (click)="editProduct(p)"
-                        class="flex-1 px-4 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 font-bold flex items-center justify-center shadow-md"
-                      >
-                        <i class="fa-solid fa-edit mr-1"></i>
-                        Editar
+                      <button (click)="editProduct(p)" class="flex-1 px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all font-bold flex items-center justify-center">
+                        <i class="fa-solid fa-edit mr-1"></i>Editar
                       </button>
-                      <button
-                        (click)="deleteProduct(p._id!)"
-                        class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 font-bold flex items-center justify-center shadow-md"
-                      >
-                        <i class="fa-solid fa-trash mr-1"></i>
-                        Eliminar
+                      <button (click)="deleteProduct(p._id!)" class="flex-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-bold flex items-center justify-center">
+                        <i class="fa-solid fa-trash mr-1"></i>Eliminar
                       </button>
                     </div>
                   </div>
