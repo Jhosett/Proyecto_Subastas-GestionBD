@@ -128,4 +128,22 @@ export class HeaderComponent implements OnInit {
   closeMenuOnClickOutside() {
     this.showUserMenu = false;
   }
+
+  accessPQRS() {
+    if (!this.isLoggedIn()) {
+      Swal.fire({
+        title: 'Acceso restringido',
+        text: 'Debes iniciar sesión para acceder al sistema PQRS',
+        icon: 'warning',
+        confirmButtonText: 'Ir a Login',
+        confirmButtonColor: '#3b82f6'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      this.router.navigate(['/pqrs']);
+    }
+  }
 }

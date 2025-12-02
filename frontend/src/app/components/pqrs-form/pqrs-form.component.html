@@ -1,0 +1,147 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header con botón de regreso -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+          <i class="fas fa-clipboard-list text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Sistema PQRS</h1>
+          <p class="text-gray-600 text-lg">Peticiones, Quejas, Reclamos y Sugerencias</p>
+        </div>
+      </div>
+      <button 
+        (click)="goHome()" 
+        class="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 flex items-center space-x-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+      >
+        <i class="fas fa-home"></i>
+        <span class="font-medium">Inicio</span>
+      </button>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+      <form (ngSubmit)="onSubmit()" #pqrsForm="ngForm" class="p-8 space-y-8">
+        
+        <!-- Tipo de solicitud -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-800 flex items-center space-x-2">
+            <i class="fas fa-tags text-blue-600"></i>
+            <span>Tipo de solicitud *</span>
+          </label>
+          <select 
+            name="type" 
+            [(ngModel)]="pqrsData.type" 
+            required
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+          >
+            <option value="">Seleccione un tipo</option>
+            <option *ngFor="let type of requestTypes" [value]="type.value">{{ type.label }}</option>
+          </select>
+        </div>
+
+        <!-- Asunto -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-800 flex items-center space-x-2">
+            <i class="fas fa-heading text-blue-600"></i>
+            <span>Asunto *</span>
+          </label>
+          <input 
+            type="text" 
+            name="subject" 
+            [(ngModel)]="pqrsData.subject" 
+            required
+            placeholder="Ingrese el asunto de su solicitud"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+          >
+        </div>
+
+        <!-- Descripción -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-800 flex items-center space-x-2">
+            <i class="fas fa-align-left text-blue-600"></i>
+            <span>Descripción *</span>
+          </label>
+          <textarea 
+            name="description" 
+            [(ngModel)]="pqrsData.description" 
+            required
+            rows="5"
+            placeholder="Describa detalladamente su solicitud"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-vertical"
+          ></textarea>
+        </div>
+
+        <!-- Producto (opcional) -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-800 flex items-center space-x-2">
+            <i class="fas fa-box text-blue-600"></i>
+            <span>Producto relacionado (opcional)</span>
+          </label>
+          <select 
+            name="productId" 
+            [(ngModel)]="pqrsData.productId" 
+            (ngModelChange)="onProductChange()"
+            [disabled]="!!pqrsData.relatedUser"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Seleccione un producto</option>
+            <option *ngFor="let product of products" [value]="product._id">
+              {{ product.nombre }} - Vendedor: {{ getSellerName(product.vendedorId) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Usuario relacionado (opcional) -->
+        <div class="space-y-3">
+          <label class="block text-sm font-semibold text-gray-800 flex items-center space-x-2">
+            <i class="fas fa-user text-blue-600"></i>
+            <span>Usuario relacionado (opcional)</span>
+          </label>
+          <select 
+            name="relatedUser" 
+            [(ngModel)]="pqrsData.relatedUser" 
+            (ngModelChange)="onUserChange()"
+            [disabled]="!!pqrsData.productId"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Seleccione un usuario</option>
+            <option *ngFor="let user of users" [value]="user.userId || user._id">
+              {{ user.nombre }} - {{ getUserRole(user) }} - {{ user.email }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Opción de anonimato -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+          <div class="flex items-center space-x-3">
+            <input 
+              type="checkbox" 
+              name="isAnonymous" 
+              [(ngModel)]="pqrsData.isAnonymous" 
+              id="anonymous"
+              class="h-5 w-5 text-blue-600 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:ring-2"
+            >
+            <label for="anonymous" class="text-sm font-medium text-gray-800 flex items-center space-x-2">
+              <i class="fas fa-user-secret text-blue-600"></i>
+              <span>Enviar de forma anónima</span>
+            </label>
+          </div>
+          <p class="text-xs text-gray-600 mt-2 ml-8">Su identidad no será revelada en la solicitud</p>
+        </div>
+
+        <!-- Botón de envío -->
+        <button 
+          type="submit" 
+          [disabled]="!isFormValid() || isSubmitting"
+          class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center space-x-2"
+        >
+          <i *ngIf="!isSubmitting" class="fas fa-paper-plane"></i>
+          <i *ngIf="isSubmitting" class="fas fa-spinner fa-spin"></i>
+          <span>{{ isSubmitting ? 'Enviando...' : 'Enviar PQRS' }}</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>

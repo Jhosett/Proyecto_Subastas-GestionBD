@@ -1,0 +1,60 @@
+<div class="notifications-container">
+  <div class="content-wrapper">
+    <div class="header">
+      <h2>Mis Notificaciones PQRS</h2>
+      <p class="subtitle">Solicitudes dirigidas a ti</p>
+    </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando notificaciones...</p>
+  </div>
+
+  <div *ngIf="!loading && notifications.length === 0" class="empty-state">
+    <div class="empty-icon">📬</div>
+    <h3>No tienes notificaciones</h3>
+    <p>No hay solicitudes PQRS dirigidas a ti en este momento.</p>
+  </div>
+
+  <div *ngIf="!loading && notifications.length > 0" class="notifications-list">
+    <div *ngFor="let notification of notifications" class="notification-card">
+      <div class="notification-header">
+        <div class="type-badge" [ngClass]="getTypeClass(notification.type)">
+          {{ getTypeLabel(notification.type) }}
+        </div>
+        <div class="status-badge" [ngClass]="getStatusClass(notification.status)">
+          {{ getStatusLabel(notification.status) }}
+        </div>
+      </div>
+
+      <div class="notification-content">
+        <h3 class="subject">{{ notification.subject }}</h3>
+        <p class="description">{{ notification.description }}</p>
+        
+        <div class="notification-details">
+          <div class="detail-item">
+            <strong>De:</strong> 
+            <span *ngIf="!notification.isAnonymous">{{ getSenderName(notification.userId) }}</span>
+            <span *ngIf="notification.isAnonymous" class="anonymous">Usuario Anónimo</span>
+          </div>
+          
+          <div *ngIf="notification.productId" class="detail-item">
+            <strong>Producto:</strong> {{ getProductName(notification.productId) }}
+          </div>
+          
+          <div class="detail-item">
+            <strong>Fecha:</strong> {{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </div>
+        </div>
+
+        <div *ngIf="notification.response" class="response-section">
+          <h4>Respuesta:</h4>
+          <p class="response-text">{{ notification.response }}</p>
+          <small class="response-date">
+            Respondido el {{ notification.responseDate | date:'dd/MM/yyyy HH:mm' }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

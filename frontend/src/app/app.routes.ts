@@ -5,6 +5,7 @@ import { HomeComponent } from './components/home/home.component';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { PqrsFormComponent } from './components/pqrs-form/pqrs-form.component';
 
 
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -12,6 +13,8 @@ import { ProductCardComponent } from './components/product-card/product-card.com
 import { ProductDetailComponent } from './components/product-detail/product-detail.seller.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { AdminProfileComponent } from './components/admin-profile/admin-profile.component';
+import { PqrsLayoutComponent } from './layouts/pqrs-layout/pqrs-layout.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 
 export const routes: Routes = [
   
@@ -22,6 +25,8 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'admin-profile', component: AdminProfileComponent },
+      {path: 'notifications', component: NotificationsComponent},
+
 
      
       { path: 'products', component: ProductListComponent },
@@ -42,6 +47,13 @@ export const routes: Routes = [
     ]
   },
 
- 
+  {
+    path: '',
+    component: PqrsLayoutComponent,
+    children: [
+      { path: 'pqrs', component: PqrsFormComponent }
+    ]
+  },
+
   { path: '**', redirectTo: '' }
 ];

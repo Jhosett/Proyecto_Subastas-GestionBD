@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import productRoutes from "./src/routes/products.router"; 
 import usersRouter from './src/users';
 import analyticsRouter from './src/routes/analytics.router';
+import pqrsRouter from './src/routes/pqrs.router';
 
 import bidsRouter from './src/routes/bids.router'; 
 import { startAuctionCloser } from './src/services/auction-closer.service';
@@ -27,6 +28,7 @@ app.get("/api/test", (_req, res) => {
 // Definición de Rutas:
 app.use('/api/bids', bidsRouter); // Nueva ruta para pujas
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/pqrs', pqrsRouter); // Nueva ruta para PQRS
 app.use("/api", usersRouter); // /api/login, /api/register, /api/users/:id
 app.use("/api/products", productRoutes); // /api/products
 
