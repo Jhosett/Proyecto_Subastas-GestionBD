@@ -1,0 +1,225 @@
+<div class="forum-container min-h-screen">
+  <div class="forum-content max-w-4xl mx-auto p-6">
+    <!-- Header del Foro -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+        💬 Foro de Discusión
+      </h1>
+      <p class="text-white/80 text-lg">Comparte ideas, conecta con la comunidad</p>
+      
+      <!-- Notificaciones -->
+      <div *ngIf="isLoggedIn" class="mt-4">
+        <button 
+          (click)="toggleNotifications()"
+          class="relative bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full hover:bg-white/30 transition-all duration-300"
+        >
+          🔔 Notificaciones
+          <span *ngIf="unreadNotifications > 0" 
+                class="notification-badge absolute -top-2 -right-2 text-xs text-white px-2 py-1 rounded-full">
+            {{ unreadNotifications }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel de Notificaciones -->
+    <div *ngIf="showNotifications && isLoggedIn" 
+         class="create-post-card rounded-xl p-6 mb-6 border-l-4 border-blue-500">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">🔔 Notificaciones</h3>
+      <div class="max-h-64 overflow-y-auto space-y-3">
+        <div *ngFor="let notification of notifications" 
+             [class]="'p-3 rounded-lg border-l-4 transition-all cursor-pointer ' + 
+                      (notification.leida ? 'bg-gray-50 border-gray-300' : 'bg-blue-50 border-blue-400')"
+             (click)="markNotificationAsRead(notification._id)">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              {{ notification.remitente.nombre.charAt(0).toUpperCase() }}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm text-gray-800">
+                <span class="font-semibold">{{ notification.remitente.nombre }}</span>
+                {{ notification.mensaje }}
+              </p>
+              <p class="text-xs text-gray-500">{{ notification.fechaCreacion | date:'short' }}</p>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="notifications.length === 0" class="text-center text-gray-500 py-4">
+          No tienes notificaciones nuevas
+        </div>
+      </div>
+    </div>
+
+    <!-- Crear nuevo post -->
+    <div *ngIf="isLoggedIn" class="create-post-card rounded-xl p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+        ✍️ Crear nueva publicación
+      </h2>
+      <div class="space-y-4">
+        <input
+          [(ngModel)]="newPost.titulo"
+          placeholder="📝 Título de la publicación"
+          class="input-field w-full p-4 rounded-xl focus:outline-none transition-all duration-300"
+          maxlength="200"
+        />
+        <textarea
+          [(ngModel)]="newPost.contenido"
+          placeholder="💬 ¿Qué quieres compartir con la comunidad?"
+          rows="4"
+          class="input-field w-full p-4 rounded-xl focus:outline-none resize-none transition-all duration-300"
+          maxlength="2000"
+        ></textarea>
+        <button
+          (click)="createPost()"
+          [disabled]="!newPost.titulo.trim() || !newPost.contenido.trim()"
+          class="btn-primary text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 disabled:cursor-not-allowed bg-blue-1000 hover:bg-blue-600"
+        >
+           Publicar
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de posts -->
+    <div class="space-y-8">
+      <div *ngFor="let post of posts" class="post-card rounded-xl p-6">
+        <!-- Header del post -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center space-x-4">
+            <div class="user-avatar w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg relative">
+              {{ post.autor.nombre.charAt(0).toUpperCase() }}
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="font-bold text-gray-800 text-lg">{{ post.autor.nombre }}</h3>
+                <span [class]="'role-badge ' + getRoleClass(post.autor)">{{ getUserRole(post.autor) }}</span>
+              </div>
+              <p class="text-sm text-gray-500 flex items-center space-x-1">
+                <span>🕰️</span>
+                <span>{{ post.fechaCreacion | date:'short' }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenido del post -->
+        <h2 class="text-2xl font-bold text-gray-800 mb-3 leading-tight">{{ post.titulo }}</h2>
+        <p class="text-gray-700 mb-6 whitespace-pre-wrap leading-relaxed text-lg">{{ post.contenido }}</p>
+
+        <!-- Reacciones del post -->
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+          <div class="flex items-center space-x-3">
+            <button
+              *ngFor="let reaction of reactionTypes"
+              (click)="addReactionToPost(post._id, reaction)"
+              [class]="'reaction-button flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ' + 
+                       (hasUserReacted(post.reacciones, reaction) ? 'active' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')"
+              [disabled]="!isLoggedIn"
+            >
+              <span class="text-lg">{{ getReactionEmoji(reaction) }}</span>
+              <span>{{ getReactionCount(post.reacciones, reaction) }}</span>
+            </button>
+          </div>
+          
+          <button
+            (click)="toggleComments(post._id)"
+            class="flex items-center space-x-2 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 px-4 py-2 rounded-full transition-all duration-300"
+          >
+            <span class="text-lg">💬</span>
+            <span class="font-medium">{{ post.totalComentarios }} comentarios</span>
+          </button>
+        </div>
+
+        <!-- Sección de comentarios -->
+        <div *ngIf="showComments[post._id]" class="comment-section">
+          <div class="space-y-4">
+            <!-- Crear comentario -->
+            <div *ngIf="isLoggedIn" class="flex space-x-4">
+              <div class="user-avatar w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold">
+                {{ getCurrentUserInitial() }}
+              </div>
+              <div class="flex-1">
+                <textarea
+                  [(ngModel)]="newComment[post._id]"
+                  placeholder="💬 Escribe un comentario..."
+                  rows="2"
+                  class="input-field w-full p-3 rounded-xl focus:outline-none resize-none transition-all duration-300"
+                  maxlength="1000"
+                ></textarea>
+                <button
+                  (click)="createComment(post._id)"
+                  [disabled]="!newComment[post._id] || !newComment[post._id].trim()"
+                  class="btn-primary mt-3 text-white px-6 py-2 rounded-xl text-sm font-medium transition-all duration-300 disabled:cursor-not-allowed"
+                >
+                  🚀 Comentar
+                </button>
+              </div>
+            </div>
+
+            <!-- Lista de comentarios -->
+            <div *ngFor="let comment of comments[post._id]" class="flex space-x-4 bg-white/50 backdrop-blur-sm p-4 rounded-xl border border-white/20">
+              <div class="author-avatar w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold">
+                {{ comment.autor.nombre.charAt(0).toUpperCase() }}
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="font-bold text-gray-800">{{ comment.autor.nombre }}</span>
+                  <span [class]="'role-badge ' + getRoleClass(comment.autor)">{{ getUserRole(comment.autor) }}</span>
+                  <span class="text-xs text-gray-500 flex items-center space-x-1">
+                    <span>🕰️</span>
+                    <span>{{ comment.fechaCreacion | date:'short' }}</span>
+                  </span>
+                </div>
+                <p class="text-gray-700 mb-3 whitespace-pre-wrap leading-relaxed">{{ comment.contenido }}</p>
+                
+                <!-- Reacciones del comentario -->
+                <div class="flex items-center space-x-2">
+                  <button
+                    *ngFor="let reaction of reactionTypes"
+                    (click)="addReactionToComment(comment._id, reaction)"
+                    [class]="'reaction-button flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ' + 
+                             (hasUserReacted(comment.reacciones, reaction) ? 'active' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')"
+                    [disabled]="!isLoggedIn"
+                  >
+                    <span>{{ getReactionEmoji(reaction) }}</span>
+                    <span>{{ getReactionCount(comment.reacciones, reaction) }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div *ngIf="totalPages > 1" class="flex justify-center items-center space-x-6 mt-12">
+      <button
+        (click)="prevPage()"
+        [disabled]="currentPage === 1"
+        class="btn-primary px-6 py-3 text-white rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ⬅️ Anterior
+      </button>
+      <span class="text-white font-semibold bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+        Página {{ currentPage }} de {{ totalPages }}
+      </span>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="btn-primary px-6 py-3 text-white rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Siguiente ➡️
+      </button>
+    </div>
+
+    <!-- Mensaje para usuarios no autenticados -->
+    <div *ngIf="!isLoggedIn" class="create-post-card rounded-xl p-8 text-center border-l-4 border-yellow-400">
+      <div class="text-6xl mb-4">🔐</div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Únete a la conversación</h3>
+      <p class="text-gray-600 mb-4">Inicia sesión para participar en las discusiones y conectar con la comunidad</p>
+      <a routerLink="/login" class="btn-primary inline-block text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300">
+        🚀 Iniciar Sesión
+      </a>
+    </div>
+  </div>
+</div>

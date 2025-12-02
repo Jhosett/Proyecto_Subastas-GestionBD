@@ -2,6 +2,7 @@ import { Router } from "express";
 import { User } from './models/user.model';
 import { Status } from './models/status.model';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -71,11 +72,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    // Update login timestamp
+ 
     user.ultimoLogin = new Date();
     await user.save();
 
-    // Create new status record for this login session
+    
     const rol = user.isAdmin ? 'Administrador' : (user.esVendedor ? 'Vendedor' : 'Comprador');
     try {
       await Status.create({
@@ -92,7 +93,7 @@ router.post('/login', async (req, res) => {
       });
     } catch (statusError: any) {
       if (statusError.code === 11000) {
-        // Drop the unique index and try again
+       
         try {
           await Status.collection.dropIndex('userId_1');
           await Status.create({
@@ -113,8 +114,20 @@ router.post('/login', async (req, res) => {
       }
     }
     
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        email: user.email, 
+        esVendedor: user.esVendedor, 
+        isAdmin: user.isAdmin 
+      },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '24h' }
+    );
+
     const { password: _, ...userResponse } = user.toObject();
-    return res.json({ user: userResponse, message: 'Login exitoso' });
+    return res.json({ user: userResponse, token, message: 'Login exitoso' });
 
   } catch (error) {
     console.error('Login error:', error);

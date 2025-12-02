@@ -15,6 +15,7 @@ import { ProductFormComponent } from './components/product-form/product-form.com
 import { AdminProfileComponent } from './components/admin-profile/admin-profile.component';
 import { PqrsLayoutComponent } from './layouts/pqrs-layout/pqrs-layout.component';
 import { NotificationsComponent } from './components/notifications/notifications.component';
+import { ForumComponent } from './components/forum/forum.component';
 
 export const routes: Routes = [
   
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'admin-profile', component: AdminProfileComponent },
       {path: 'notifications', component: NotificationsComponent},
+      { path: 'forum', component: ForumComponent },
 
 
      
